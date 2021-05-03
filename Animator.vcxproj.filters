@@ -102,6 +102,15 @@
     <ClCompile Include="robot.cpp">
       <Filter>Source Files\Model</Filter>
     </ClCompile>
+    <ClCompile Include="Beziercurveevaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="B-splinecurveevaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="Catmull-Romcurveevaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="curve.h">
@@ -163,6 +172,15 @@
     </ClInclude>
     <ClInclude Include="vec.h">
       <Filter>Header Files\Math.</Filter>
+    </ClInclude>
+    <ClInclude Include="B-splinecurveevaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="Beziercurveevaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="Catmull-Romcurveevaluator.h">
+      <Filter>Header Files\Curves.</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
