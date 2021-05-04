@@ -75,7 +75,7 @@ public:
 	void setInitialV(Vec3f v) { initialV = v; }
 	void setEmitPos(Vec3f p) { lastEmitPos = emitPos; emitPos = p; }
 	void setEmitPos2(Vec3f p) { emitPos2 = p; }
-
+	Vec3f topLeft{ -2, 1.5, -2 };
 protected:
 	class Particle
 	{
@@ -87,6 +87,7 @@ protected:
 		Vec3f a;
 		Vec3f p;
 		Vec3f F;
+		Vec3f p_prev;
 		float age{ 0 };
 	};
 
@@ -101,7 +102,19 @@ protected:
 	Vec3f emitPos2{ 0, 0, 0 };
 	Vec3f lastEmitPos{ 0, 0, 0 };
 	Vec3f initialV{ 0, 0, 0 };
-	float mass;
+	float mass{ 1 };
+
+	// spring cloth
+	int numParticlesWidth = 20;
+	int numParticlesHeight = 20;
+	float clothHeight = 4.0f;
+	float clothWidth = 4.0f;
+	
+	float structualL0{ clothHeight / (numParticlesHeight - 1) };
+	float structualK{ 10 * 10/ structualL0 };
+	float shearL0{ clothHeight / (numParticlesHeight - 1) * sqrtf(2) };
+	float shearK{ 10 * 10 / shearL0 };
+	vector<vector<Particle>> clothParticles;
 	/** Some baking-related state **/
 	float bake_fps;						// frame rate at which simulation was baked
 	float bake_start_time;				// time at which baking started 

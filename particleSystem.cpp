@@ -10,7 +10,7 @@
 #include <limits.h>
 #include <time.h>
 
-
+constexpr float eps = 0.0001f;
 /***************
  * Constructors
  ***************/
@@ -23,6 +23,7 @@ ParticleSystem::ParticleSystem()
 		particles.push_back(ParticleSystem::Particle(mass, Vec3f{ 0, 0, 0 }, Vec3f{ 0, 0, 0 },
 			Vec3f{ 0, 0, 0 }, emitPos));
 	}*/
+	resetSimulation(0);
 }
 
 
@@ -93,6 +94,24 @@ void ParticleSystem::resetSimulation(float t)
 		particles.push_back(ParticleSystem::Particle(mass, Vec3f{ 0, 0, 0 }, Vec3f{ 0, 0, 0 },
 			Vec3f{ 0, 0, 0 }, emitPos + bias));
 	}
+
+	// if cloth
+	clothParticles.clear();
+	for (int r = 0; r < numParticlesHeight; r++)
+	{
+		vector<Particle> row;
+		for (int c = 0; c < numParticlesWidth; c++)
+		{
+			Vec3f pos = topLeft + Vec3f(((float)c / (numParticlesWidth- 1)) * clothWidth, 
+				-((float)r / (numParticlesHeight - 1)) * clothHeight, 0);
+			ParticleSystem::Particle p(mass, Vec3f{ 0, 0, 0 }, Vec3f{ 0, 0, 0 },
+				Vec3f{ 0, 0, 0 }, pos);
+			p.p_prev = pos;
+			row.push_back(p);
+		}
+		clothParticles.push_back(row);
+	}
+
 	// These values are used by the UI
 	simulate = false;
 	dirty = true;
@@ -135,6 +154,120 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 	}
 	if (simulate)
 		baked_particles.push_back(particles);
+
+	// cloth
+	for (int r = 0; r < numParticlesHeight; r++)
+	{
+		for (int c = numParticlesWidth - 1; c >=0; c--)
+		{
+			if (r == 0 && c == 0)
+			{
+				clothParticles[r][c].p = topLeft;
+				continue;
+			}
+			else if (r == 0 && c == numParticlesWidth - 1)
+			{
+				clothParticles[r][c].p = topLeft + Vec3f(clothWidth, 0, 0);
+				continue;
+			}
+			clothParticles[r][c].F = Vec3f{ 0, 0, 0 };
+			if (c >= 1)
+			{
+				Vec3f dist = (clothParticles[r][c - 1].p_prev - clothParticles[r][c].p_prev);
+				//if(dist.length() > eps)
+					clothParticles[r][c].F += structualK * dist / dist.length() 
+					* (dist.length() - structualL0);
+				/*if (r == 1 && c == numParticlesHeight - 1)
+					cout << "F(x-1,y): " << structualK * dist / dist.length()
+					* (dist.length() - structualL0) << " dist: " << dist << endl;*/
+			}
+			if (r >= 1)
+			{
+				Vec3f dist = (clothParticles[r - 1][c].p_prev - clothParticles[r][c].p_prev);
+				//if (dist.length() > eps)
+					clothParticles[r][c].F += structualK * dist / dist.length()
+					* (dist.length() - structualL0);
+				/*if (r == 1 && c == numParticlesHeight - 1)
+					cout << "F(x,y-1): " << structualK * dist / dist.length()
+					* (dist.length() - structualL0) << " dist: " << dist << endl;*/
+			}
+			if (c < numParticlesWidth - 1)
+			{
+				Vec3f dist = (clothParticles[r][c + 1].p_prev - clothParticles[r][c].p_prev);
+				//if (dist.length() > eps)
+					clothParticles[r][c].F += structualK * dist / dist.length()
+					* (dist.length() - structualL0);
+				/*if (r == 1 && c == numParticlesHeight - 1)
+					cout << "F(x+1, y): " << structualK * dist / dist.length()
+					* (dist.length() - structualL0) << " dist: " << dist << endl;*/
+			}
+			if (r < numParticlesHeight - 1)
+			{
+				Vec3f dist = (clothParticles[r + 1][c].p_prev - clothParticles[r][c].p_prev);
+				//if (dist.length() > eps)
+					clothParticles[r][c].F += structualK * dist / dist.length()
+					* (dist.length() - structualL0);
+				/*if (r == 1 && c == numParticlesHeight - 1)
+					cout << "F(x, y+1): " << structualK * dist / dist.length()
+					* (dist.length() - structualL0) << " dist: " << dist << endl;*/
+			}
+			if (r >= 1 && c >= 1)
+			{
+				Vec3f dist = (clothParticles[r - 1][c - 1].p_prev - clothParticles[r][c].p_prev);
+				//if (dist.length() > eps)
+					clothParticles[r][c].F += shearK * dist / dist.length()
+					* (dist.length() - shearL0);
+			}
+			if (r <= numParticlesHeight - 2 && c <= numParticlesWidth - 2)
+			{
+				Vec3f dist = (clothParticles[r + 1][c + 1].p_prev - clothParticles[r][c].p_prev);
+				//if (dist.length() > eps)
+					clothParticles[r][c].F += shearK * dist / dist.length()
+					* (dist.length() - shearL0);
+			}
+			if (r <= numParticlesHeight - 2 && c >= 1)
+			{
+				Vec3f dist = (clothParticles[r + 1][c - 1].p_prev - clothParticles[r][c].p_prev);
+				//if (dist.length() > eps)
+					clothParticles[r][c].F += shearK * dist / dist.length()
+					* (dist.length() - shearL0);
+			}
+			if (r >= 1 && c <= numParticlesWidth - 2)
+			{
+				Vec3f dist = (clothParticles[r - 1][c + 1].p_prev - clothParticles[r][c].p_prev);
+				//if (dist.length() > eps)
+					clothParticles[r][c].F += shearK * dist / dist.length()
+					* (dist.length() - shearL0);
+			}
+			Vec3f g{ 0, -2, 0 };
+			Vec3f wind{ 0, 0, -0.6 };
+			Vec3f windBias = getBias() / 3;
+			wind += windBias;
+			clothParticles[r][c].F += g * mass + wind;
+			clothParticles[r][c].a = clothParticles[r][c].F / mass;
+			/*if (r == 1 && c == 0)
+			{
+				cout << "k: " << structualK << endl;
+				cout << "l: " << structualL0 << endl;
+				cout << "F cumu: " << clothParticles[r][c].F << endl;
+				cout << "a: " << clothParticles[r][c].a << endl;
+				cout << "----------------------------------------" << endl;
+			}*/
+			clothParticles[r][c].v += dt * clothParticles[r][c].a;
+			clothParticles[r][c].p += dt * clothParticles[r][c].v;
+			clothParticles[r][c].v *= 0.9;
+			clothParticles[r][c].a *= 0.8;
+		}
+		
+	}
+	// update prev
+	for (int r = 0; r < numParticlesHeight; r++)
+	{
+		for (int c = numParticlesWidth - 1; c >= 0; c--)
+		{
+			clothParticles[r][c].p_prev = clothParticles[r][c].p;
+		}
+	}
 }
 
 
@@ -195,6 +328,42 @@ void ParticleSystem::drawParticles(float t)
 
 			glPopMatrix();
 		}
+	}
+
+	// draw cloth
+	setDiffuseColor(1, 0, 0);
+	for (int r = 0; r < numParticlesHeight - 1; r++)
+	{
+		for (int c = 0; c < numParticlesWidth - 1; c++)
+		{
+			glPushMatrix();
+
+			/*glTranslated(clothParticles[r][c].p[0],
+				clothParticles[r][c].p[1],
+				clothParticles[r][c].p[2]);
+			drawSphere(0.3);*/
+			Particle pt1 = clothParticles[r][c];
+			Particle pt2 = clothParticles[r+1][c];
+			Particle pt3 = clothParticles[r+1][c+1];
+			Particle pt4 = clothParticles[r][c+1];
+			
+			drawTriangle(pt1.p[0], pt1.p[1], pt1.p[2],
+				pt2.p[0], pt2.p[1], pt2.p[2], 
+				pt4.p[0], pt4.p[1], pt4.p[2]);
+			drawTriangle(pt2.p[0], pt2.p[1], pt2.p[2],
+				pt3.p[0], pt3.p[1], pt3.p[2],
+				pt4.p[0], pt4.p[1], pt4.p[2]);
+
+			/*if (r == 0 && c == 0)
+			{
+				cout << "pt1: " << pt1.p  << endl
+					<< "pt2: " << pt2.p << endl;
+			}*/
+			/*drawTriangle(0, 0, 0,
+				0, 4, 0, 0, 4, 4);*/
+			glPopMatrix();
+		}
+
 	}
 }
 
