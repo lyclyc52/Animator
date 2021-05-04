@@ -129,8 +129,15 @@ ModelerUIWindows::ModelerUIWindows() {
             o->labelsize(12);
             o->user_data((void*)(this));
           }
+          { Fl_Button* o = m_firstBonusWindowButton = new Fl_Button(425, 470, 75, 20, "First Bonus");
+            o->labelsize(12);
+            o->user_data((void*)(this));
+          }
+          //bonus
+
           o->end();
         }
+
         o->end();
       }
       o->end();
@@ -291,4 +298,20 @@ ModelerUIWindows::ModelerUIWindows() {
     }
     o->end();
   }
+
+  m_firstBonusWindow = new Fl_Window(230, 230, "First Bonus Window");
+  m_firstBonusWindow->user_data((void*)(this));
+  m_pbtTesionSlider = new Fl_Value_Slider(60, 20, 130, 20, "Tension");
+  m_pbtTesionSlider->type(5);
+  m_pbtTesionSlider->user_data((void*)(this));
+
+  m_pbtTesionSlider->labelsize(12);
+  m_pbtTesionSlider->minimum(0.00);
+  m_pbtTesionSlider->maximum(0.50);
+  m_pbtTesionSlider->step(0.01);
+  m_pbtTesionSlider->value(0.30);
+  m_pbtTesionSlider->align(FL_ALIGN_LEFT);
+
+  m_firstBonusWindow->end();
+  
 }

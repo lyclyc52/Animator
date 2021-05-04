@@ -106,10 +106,18 @@ void Curve::wrap(bool bWrap)
 	m_bDirty = true;
 }
 
+
+void Curve::setDirtyTrue() {
+	m_bDirty = true;
+}
+
 bool Curve::wrap() const
 {
 	return m_bWrap;
 }
+
+
+
 
 float Curve::evaluateCurveAt(const float x) const
 {
@@ -385,7 +393,9 @@ void Curve::drawControlPoint(int iCtrlPt) const
 
 void Curve::drawControlPoints() const
 {
+	//std::cout << m_pceEvaluator->tension << std::endl;
 	reevaluate();
+
 
 	double fPointSize;
 	glGetDoublev(GL_POINT_SIZE, &fPointSize);

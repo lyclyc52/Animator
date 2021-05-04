@@ -621,6 +621,13 @@ void ModelerUI::activeCurvesChanged()
 	else {
 		m_pbtWrap->deactivate();
 	}
+
+	//if (m_pwndGraphWidget->currCurveWrap() >= 0) {
+	//	m_pbtTesionSlider->activate();
+	//}
+	//else {
+	//	m_pbtTesionSlider->deactivate();
+	//}
 }
 
 void ModelerUI::currTime(float fTime) 
@@ -867,6 +874,7 @@ void ModelerUI::fps(const int iFps)
 	m_iFps = iFps;
 }
 
+
 ModelerUI::ModelerUI() : 
 m_iCurrControlCount(0), 
 m_pcbfValueChangedCallback(NULL),
@@ -911,6 +919,11 @@ m_bSaveMovie(false)
 
 	m_pwndMainWnd->callback((Fl_Callback*)cb_hide);
 	m_pwndMainWnd->when(FL_HIDE);
+
+	//bonus
+	m_pbtTesionSlider->callback((Fl_Callback*)cb_tension);
+
+	m_firstBonusWindowButton->callback((Fl_Callback*)cb_first_bonus_window_button);
 
 	m_poutTime->value("0.00");
 	m_poutPlayStart->value("0.00");
@@ -1005,4 +1018,23 @@ void ModelerUI::autoLoadNPlay()
 		simulate(true);
 		animate(true);
 	}
+}
+
+
+//bonus
+inline void ModelerUI::cb_tension_i(Fl_Value_Slider*o, void*)
+{
+	m_pwndGraphWidget->setTension(o->value());
+	//std::cout << 0;
+	m_pwndGraphWidget->redraw();
+}
+
+void ModelerUI::cb_tension(Fl_Value_Slider* o, void* v)
+{
+	((ModelerUI*)(o->user_data()))->cb_tension_i(o, v);
+}
+
+
+void ModelerUI::cb_first_bonus_window_button(Fl_Button* o, void* v) {
+	((ModelerUI*)(o->user_data()))->m_firstBonusWindow->show();
 }
