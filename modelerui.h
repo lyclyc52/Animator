@@ -37,10 +37,17 @@ public:
 	void animate(bool bAnimate);
 	int fps();
 	void fps(int fps);
+
+	//bonus
+	int tension();
+	void tension(float tension);
+
 	bool simulate() const;
 	void simulate(bool bSimulate);
 	void redrawModelerView();
     void autoLoadNPlay();
+
+
 
 protected:
 
@@ -138,6 +145,16 @@ private:
 	inline void cb_loop_i(Fl_Light_Button*, void*);
 	static void cb_loop(Fl_Light_Button*, void*);
 	static void cb_timed(void *); // timed callback for animation
+
+	//bonus
+
+	//return the object
+
+
+	static void cb_first_bonus_window_button(Fl_Button*, void*);
+	inline void cb_tension_i(Fl_Value_Slider*, void*);
+	static void cb_tension(Fl_Value_Slider*, void*);
+	
 };
 
 #endif

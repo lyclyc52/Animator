@@ -55,6 +55,8 @@ public:
   static Fl_Menu_Item menu_m_pchoCurveType[];
   Fl_Light_Button *m_pbtWrap;
   Fl_Button *m_pbtZoomAll;
+
+
   Fl_Button *m_pbtStepBack;
   Fl_Button *m_pbtPlay;
   Fl_Button *m_pbtStepForw;
@@ -74,5 +76,11 @@ public:
   Fl_Button *m_pbtRemoveAllCamKeyFrames;
   Fl_Window *m_pwndModelerWnd;
   ModelerView *m_pwndModelerView;
+
+
+  //bonus
+  Fl_Button* m_firstBonusWindowButton;
+  Fl_Window* m_firstBonusWindow;
+  Fl_Value_Slider* m_pbtTesionSlider;
 };
 #endif

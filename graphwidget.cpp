@@ -187,6 +187,7 @@ int GraphWidget::currCurveType() const
 
 void GraphWidget::draw()
 {
+
 	if (!valid()) {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
@@ -842,10 +843,28 @@ int GraphWidget::currCurveWrap() const
 	return -1;
 }
 
+float GraphWidget::currCurveTension()const
+{
+	if (m_iCurrCurve >= 0) {
+		return m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension;
+	}
+
+	return -1;
+}
+
 void GraphWidget::currCurveWrap(bool bWrap)
 {
 	if (m_iCurrCurve >= 0) {
 		m_pcrvvCurves[m_iCurrCurve]->wrap(bWrap);
+	}
+}
+
+//bonus
+void GraphWidget::setTension(float tension)
+{
+	if (m_iCurrCurve >= 0) {
+		m_pcrvvCurves[m_iCurrCurve]->setDirtyTrue();
+		m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension=tension;
 	}
 }
 
@@ -897,6 +916,7 @@ void GraphWidget::drawCurve(int iCurve, int iColor) const
 	m_pcrvvCurves[iCurve]->drawEvaluatedCurveSegments();
 	if (iCurve == m_iCurrCurve)
 		glLineWidth(1.0);
+	std::cout << m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension << std::endl;
 	m_pcrvvCurves[iCurve]->drawControlPoints();
 
 	glColor3f(1.0f, 1.0f, 1.0f); // white

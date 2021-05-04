@@ -101,6 +101,12 @@ public:
 	int currCurveWrap() const;
 	void currCurveWrap(bool bWrap);
 	void invalidateAllCurves();
+
+	float currCurveTension()const;
+
+	//bonus
+	void setTension(float tension);
+
 	// note that this value is evaluated lazily (it's only updated
 	// after a redraw.
 	Fl_Color currCurveColor() const { return m_flcCurrCurve; }

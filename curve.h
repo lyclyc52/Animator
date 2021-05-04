@@ -44,6 +44,11 @@ public:
 
 	void wrap(bool bWrap);
 	bool wrap() const;
+
+	//bonus
+	void tension(float tension);
+	float tension() const;
+
 	void drawEvaluatedCurveSegments(void) const;
 	void drawControlPoints(void) const;
 	void drawControlPoint(int iCtrlPt) const;
@@ -52,7 +57,7 @@ public:
 
 	void toStream(std::ostream& output_stream) const;
 	void fromStream(std::istream& input_stream);
-
+	void setDirtyTrue();
 protected:
 	void init(const float fStartYValue = 0.0f);
 	void reevaluate(void) const;
@@ -65,6 +70,7 @@ protected:
 	mutable std::vector<Point> m_ptvEvaluatedCurvePts;
 	mutable bool m_bDirty;
 
+	float m_tension;
 	float m_fMaxX;
 	bool m_bWrap;
 	static float s_fCtrlPtXEpsilon;
