@@ -8,6 +8,9 @@
 #include "bitmap.h"
 #include <gl/glu.h>
 #include <FL/fl_ask.H>
+#include "mat.h"
+#include "vec.h"
+#include "particleSystem.h"
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502
 #endif
@@ -547,7 +550,7 @@ void drawLeftArm()
 		setDiffuseColor(1, 1, 0);
 		drawShouder();
 		// rings
-		glPushMatrix();
+		/*glPushMatrix();
 		{
 			glRotated(-45, 0, 0, 1);
 			glTranslated(-0.5, 2, -0.5);
@@ -560,7 +563,7 @@ void drawLeftArm()
 			glTranslated(-1, 0.5, -0.5);
 			drawCircleRingOnBody(0.25, 0.8);
 		}
-		glPopMatrix();
+		glPopMatrix();*/
 		glPushMatrix();
 		{
 			glTranslated(0.5, -2, -0.75);
@@ -659,7 +662,7 @@ void drawRightArm()
 	setDiffuseColor(1, 1, 0);
 	drawShouder();
 	// rings
-	glPushMatrix();
+	/*glPushMatrix();
 	{
 		glRotated(-45, 0, 0, 1);
 		glTranslated(-0.5, 2, -0.5);
@@ -672,7 +675,7 @@ void drawRightArm()
 		glTranslated(-1, 0.5, -0.5);
 		drawCircleRingOnBody(0.25, 0.8);
 	}
-	glPopMatrix();
+	glPopMatrix();*/
 	glPushMatrix();
 	{
 		glTranslated(0.5, -2, -0.75);
@@ -1066,7 +1069,7 @@ void drawBodyOut(float h)
 		glRotated(-30, 0, 1, 0);
 		glRotated(-90, 1, 0, 0);
 		glTranslated(-2.5, 0.5, 5);
-		drawCircleRingOnBody(0.3, 1.2);
+		//drawCircleRingOnBody(0.3, 1.2);
 	}
 	glPopMatrix();
 	glPushMatrix();
@@ -1075,7 +1078,7 @@ void drawBodyOut(float h)
 		glRotated(30, 0, 1, 0);
 		glRotated(-90, 1, 0, 0);
 		glTranslated(-2.5, -1, 5);
-		drawCircleRingOnBody(0.3, 1.2);
+		//drawCircleRingOnBody(0.3, 1.2);
 	}
 	glPopMatrix();
 	setDiffuseColor(0.5f, 0.5f, 0);
@@ -1188,6 +1191,8 @@ void RobotModel::draw()
 	// matrix stuff.  Unless you want to fudge directly with the 
 	// projection matrix, don't bother with this ...
 	ModelerView::draw();
+	// save camera
+	Mat4f cameraM = getModelViewMatrix();
 
 	// set light source
 	GLfloat light_pos[] = { VAL(LIGHT_POS_X), VAL(LIGHT_POS_Y), VAL(LIGHT_POS_Z), 0 };
@@ -1259,7 +1264,7 @@ void RobotModel::draw()
 			glRotated(20, 1, 0, 0);
 			glTranslated(-1.3, 0, 1.5);
 			setDiffuseColor(0.2, 0.2, 0.2);
-			draw_shoulder_up_helper();
+			//draw_shoulder_up_helper();
 		}
 		glPopMatrix();
 
@@ -1269,7 +1274,7 @@ void RobotModel::draw()
 			glRotated(-20, 1, 0, 0);
 			glTranslated(-1.3, 0, -2);
 			setDiffuseColor(0.2, 0.2, 0.2);
-			draw_shoulder_up_helper();
+			//draw_shoulder_up_helper();
 		}
 		glPopMatrix();
 
@@ -1469,6 +1474,12 @@ void RobotModel::draw()
 			{
 				// jet header
 				drawCylinder(h2, 0.15, 0.55);
+				// set particle spawn position
+				Mat4f worldM = cameraM.inverse() * getModelViewMatrix();
+				Vec4f p4 = worldM * Vec4f(0, 0, 0, 1);
+				p4 = p4 / p4[3];
+				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+				ps->setEmitPos({ p4[0], p4[1], p4[2] });
 			}
 			glPopMatrix();
 		}
@@ -1490,6 +1501,12 @@ void RobotModel::draw()
 			{
 				// jet header
 				drawCylinder(h2, 0.15, 0.5);
+				// set particle spawn position
+				Mat4f worldM = cameraM.inverse() * getModelViewMatrix();
+				Vec4f p4 = worldM * Vec4f(0, 0, 0, 1);
+				p4 = p4 / p4[3];
+				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+				ps->setEmitPos2({ p4[0], p4[1], p4[2] });
 			}
 			glPopMatrix();
 		}
@@ -1498,71 +1515,75 @@ void RobotModel::draw()
 	glPopMatrix();
 	/*}
 	glPopMatrix();*/
+	endDraw();
 
 }
 
-//int main()
-//{
-//
-//	// Initialize the controls
-//	// Constructor is ModelerControl(name, minimumvalue, maximumvalue, 
-//	// stepsize, defaultvalue)
-//	ModelerControl controls[NUMCONTROLS];
-//	controls[TEXTURE_MAPPING] = ModelerControl("Texture Mapping", 0, 1, 1, 0);
-//	controls[XPOS] = ModelerControl("X Position", -5, 5, 0.1f, 0);
-//	controls[YPOS] = ModelerControl("Y Position", -5, 5, 0.1f, 0);
-//	controls[ZPOS] = ModelerControl("Z Position", -5, 5, 0.1f, 0);
-//	controls[HEAD_ROTATE] = ModelerControl("Head Rotate", -90, 90, 0.2f, 0);
-//	controls[LEFT_FEET_ROTATE] = ModelerControl("Left Feet Rotate", 0, 45, 0.2f, 0);
-//	controls[RIGHT_FEET_ROTATE] = ModelerControl("Right Feet Rotate", 0, 45, 0.2f, 0);
-//	controls[LIGHT_POS_X] = ModelerControl("Light 0 source position X", -100, 100, 1, 50);
-//	controls[LIGHT_POS_Y] = ModelerControl("Light 0 source position Y", -100, 100, 1, 50);
-//	controls[LIGHT_POS_Z] = ModelerControl("Light 0 source position Z", -100, 100, 1, 50);
-//	controls[LIGHT1_POS_X] = ModelerControl("Light 1 source position X", -100, 100, 1, -100);
-//	controls[LIGHT1_POS_Y] = ModelerControl("Light 1 source position Y", -100, 100, 1, -100);
-//	controls[LIGHT1_POS_Z] = ModelerControl("Light 1 source position Z", -100, 100, 1, -100);
-//	controls[LIGHT_INTENSITY] = ModelerControl("Light intensity", 0, 1, 0.01f, 1);
-//
-//	controls[LEFT_ARM_X_ROTATE] = ModelerControl("Left Arm Rotate X", -90, 90, 0.2f, 0);
-//	controls[RIGHT_ARM_X_ROTATE] = ModelerControl("Right Arm Rotate X", -90, 90, 0.2f, 0);
-//	controls[LEFT_ARM_Y_ROTATE] = ModelerControl("Left Arm Rotate Y", 0, 90, 0.2f, 0);
-//	controls[RIGHT_ARM_Y_ROTATE] = ModelerControl("Right Arm Rotate Y", 0, 90, 0.2f, 0);
-//	controls[LEFT_ARM_Z_ROTATE] = ModelerControl("Left Arm Rotate Z", 0, 90, 0.2f, 0);
-//	controls[RIGHT_ARM_Z_ROTATE] = ModelerControl("Right Arm Rotate Z", 0, 90, 0.2f, 0);
-//
-//	controls[LEFT_LOWER_ARM_ROTATE] = ModelerControl("Left Lower Arm Rotate", -15, 90, 0.2f, 0);
-//	controls[RIGHT_LOWER_ARM_ROTATE] = ModelerControl("Right Lower Arm Rotate", -15, 90, 0.2f, 0);
-//
-//	controls[ROCKET_GRAB] = ModelerControl("Ability: Rocket Grab", 0, 100, 1.0f, 0);
-//
-//	controls[LEFT_HAND_ROTATE] = ModelerControl("Left Hand Rotate", -90, 90, 0.2f, 0);
-//	controls[RIGHT_HAND_ROTATE] = ModelerControl("Right Hand Rotate", -90, 90, 0.2f, 0);
-//
-//	controls[LEFT_THUMB_UP] = ModelerControl("Left Thumb Up", 0, 70, 0.2f, 0);
-//	controls[RIGHT_THUMB_UP] = ModelerControl("Right Thumb Up", 0, 70, 0.2f, 0);
-//
-//	controls[LEFT_FINGER1_FIRST_JOINT_ROTATE] = ModelerControl("Left Finger1 First Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[LEFT_FINGER1_SECOND_JOINT_ROTATE] = ModelerControl("Left Finger1 Second Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[RIGHT_FINGER1_FIRST_JOINT_ROTATE] = ModelerControl("Right Finger1 First Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[RIGHT_FINGER1_SECOND_JOINT_ROTATE] = ModelerControl("Right Finger1 Second Joint Rotate", 0, 90, 0.2f, 0);
-//
-//	controls[LEFT_FINGER2_FIRST_JOINT_ROTATE] = ModelerControl("Left Finger2 First Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[LEFT_FINGER2_SECOND_JOINT_ROTATE] = ModelerControl("Left Finger2 Second Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[RIGHT_FINGER2_FIRST_JOINT_ROTATE] = ModelerControl("Right Finger2 First Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[RIGHT_FINGER2_SECOND_JOINT_ROTATE] = ModelerControl("Right Finger2 Second Joint Rotate", 0, 90, 0.2f, 0);
-//
-//	controls[LEFT_FINGER3_FIRST_JOINT_ROTATE] = ModelerControl("Left Finger3 First Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[LEFT_FINGER3_SECOND_JOINT_ROTATE] = ModelerControl("Left Finger3 Second Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[RIGHT_FINGER3_FIRST_JOINT_ROTATE] = ModelerControl("Right Finger3 First Joint Rotate", 0, 90, 0.2f, 0);
-//	controls[RIGHT_FINGER3_SECOND_JOINT_ROTATE] = ModelerControl("Right Finger3 Second Joint Rotate", 0, 90, 0.2f, 0);
-//
-//	controls[CHANGE_HAND] = ModelerControl("Change Hands", 0, 1, 1, 0);
-//	controls[JETTING] = ModelerControl("Jetting", 0, 1, 1, 0);
-//
-//	controls[LASING] = ModelerControl("Lasing!", 0, 1, 1, 0);
-//
-//
-//	ModelerApplication::Instance()->Init(&createSampleModel, controls, NUMCONTROLS);
-//
-//	return ModelerApplication::Instance()->Run();
-//}
+int main()
+{
+
+	// Initialize the controls
+	// Constructor is ModelerControl(name, minimumvalue, maximumvalue, 
+	// stepsize, defaultvalue)
+	ModelerControl controls[NUMCONTROLS];
+	controls[TEXTURE_MAPPING] = ModelerControl("Texture Mapping", 0, 1, 1, 0);
+	controls[XPOS] = ModelerControl("X Position", -5, 5, 0.1f, 0);
+	controls[YPOS] = ModelerControl("Y Position", -5, 5, 0.1f, 0);
+	controls[ZPOS] = ModelerControl("Z Position", -5, 5, 0.1f, 0);
+	controls[HEAD_ROTATE] = ModelerControl("Head Rotate", -90, 90, 0.2f, 0);
+	controls[LEFT_FEET_ROTATE] = ModelerControl("Left Feet Rotate", 0, 45, 0.2f, 0);
+	controls[RIGHT_FEET_ROTATE] = ModelerControl("Right Feet Rotate", 0, 45, 0.2f, 0);
+	controls[LIGHT_POS_X] = ModelerControl("Light 0 source position X", -100, 100, 1, 50);
+	controls[LIGHT_POS_Y] = ModelerControl("Light 0 source position Y", -100, 100, 1, 50);
+	controls[LIGHT_POS_Z] = ModelerControl("Light 0 source position Z", -100, 100, 1, 50);
+	controls[LIGHT1_POS_X] = ModelerControl("Light 1 source position X", -100, 100, 1, -100);
+	controls[LIGHT1_POS_Y] = ModelerControl("Light 1 source position Y", -100, 100, 1, -100);
+	controls[LIGHT1_POS_Z] = ModelerControl("Light 1 source position Z", -100, 100, 1, -100);
+	controls[LIGHT_INTENSITY] = ModelerControl("Light intensity", 0, 1, 0.01f, 1);
+
+	controls[LEFT_ARM_X_ROTATE] = ModelerControl("Left Arm Rotate X", -90, 90, 0.2f, 0);
+	controls[RIGHT_ARM_X_ROTATE] = ModelerControl("Right Arm Rotate X", -90, 90, 0.2f, 0);
+	controls[LEFT_ARM_Y_ROTATE] = ModelerControl("Left Arm Rotate Y", 0, 90, 0.2f, 0);
+	controls[RIGHT_ARM_Y_ROTATE] = ModelerControl("Right Arm Rotate Y", 0, 90, 0.2f, 0);
+	controls[LEFT_ARM_Z_ROTATE] = ModelerControl("Left Arm Rotate Z", 0, 90, 0.2f, 0);
+	controls[RIGHT_ARM_Z_ROTATE] = ModelerControl("Right Arm Rotate Z", 0, 90, 0.2f, 0);
+
+	controls[LEFT_LOWER_ARM_ROTATE] = ModelerControl("Left Lower Arm Rotate", -15, 90, 0.2f, 0);
+	controls[RIGHT_LOWER_ARM_ROTATE] = ModelerControl("Right Lower Arm Rotate", -15, 90, 0.2f, 0);
+
+	controls[ROCKET_GRAB] = ModelerControl("Ability: Rocket Grab", 0, 100, 1.0f, 0);
+
+	controls[LEFT_HAND_ROTATE] = ModelerControl("Left Hand Rotate", -90, 90, 0.2f, 0);
+	controls[RIGHT_HAND_ROTATE] = ModelerControl("Right Hand Rotate", -90, 90, 0.2f, 0);
+
+	controls[LEFT_THUMB_UP] = ModelerControl("Left Thumb Up", 0, 70, 0.2f, 0);
+	controls[RIGHT_THUMB_UP] = ModelerControl("Right Thumb Up", 0, 70, 0.2f, 0);
+
+	controls[LEFT_FINGER1_FIRST_JOINT_ROTATE] = ModelerControl("Left Finger1 First Joint Rotate", 0, 90, 0.2f, 0);
+	controls[LEFT_FINGER1_SECOND_JOINT_ROTATE] = ModelerControl("Left Finger1 Second Joint Rotate", 0, 90, 0.2f, 0);
+	controls[RIGHT_FINGER1_FIRST_JOINT_ROTATE] = ModelerControl("Right Finger1 First Joint Rotate", 0, 90, 0.2f, 0);
+	controls[RIGHT_FINGER1_SECOND_JOINT_ROTATE] = ModelerControl("Right Finger1 Second Joint Rotate", 0, 90, 0.2f, 0);
+
+	controls[LEFT_FINGER2_FIRST_JOINT_ROTATE] = ModelerControl("Left Finger2 First Joint Rotate", 0, 90, 0.2f, 0);
+	controls[LEFT_FINGER2_SECOND_JOINT_ROTATE] = ModelerControl("Left Finger2 Second Joint Rotate", 0, 90, 0.2f, 0);
+	controls[RIGHT_FINGER2_FIRST_JOINT_ROTATE] = ModelerControl("Right Finger2 First Joint Rotate", 0, 90, 0.2f, 0);
+	controls[RIGHT_FINGER2_SECOND_JOINT_ROTATE] = ModelerControl("Right Finger2 Second Joint Rotate", 0, 90, 0.2f, 0);
+
+	controls[LEFT_FINGER3_FIRST_JOINT_ROTATE] = ModelerControl("Left Finger3 First Joint Rotate", 0, 90, 0.2f, 0);
+	controls[LEFT_FINGER3_SECOND_JOINT_ROTATE] = ModelerControl("Left Finger3 Second Joint Rotate", 0, 90, 0.2f, 0);
+	controls[RIGHT_FINGER3_FIRST_JOINT_ROTATE] = ModelerControl("Right Finger3 First Joint Rotate", 0, 90, 0.2f, 0);
+	controls[RIGHT_FINGER3_SECOND_JOINT_ROTATE] = ModelerControl("Right Finger3 Second Joint Rotate", 0, 90, 0.2f, 0);
+
+	controls[CHANGE_HAND] = ModelerControl("Change Hands", 0, 1, 1, 0);
+	controls[JETTING] = ModelerControl("Jetting", 0, 1, 1, 0);
+
+	controls[LASING] = ModelerControl("Lasing!", 0, 1, 1, 0);
+
+	ParticleSystem* ps = new ParticleSystem();
+	
+	ModelerApplication::Instance()->SetParticleSystem(ps);
+
+	ModelerApplication::Instance()->Init(&createSampleModel, controls, NUMCONTROLS);
+
+	return ModelerApplication::Instance()->Run();
+}

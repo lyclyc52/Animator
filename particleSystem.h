@@ -17,13 +17,13 @@
 #define __PARTICLE_SYSTEM_H__
 
 #include "vec.h"
+#include <vector>
+#include "mat.h"
 
-
-
+using namespace std;
 class ParticleSystem {
 
 public:
-
 
 
 	/** Constructor **/
@@ -71,13 +71,37 @@ public:
 	bool isSimulate() { return simulate; }
 	bool isDirty() { return dirty; }
 	void setDirty(bool d) { dirty = d; }
-
-
+	Vec3f getInitialV() { return initialV; }
+	void setInitialV(Vec3f v) { initialV = v; }
+	void setEmitPos(Vec3f p) { lastEmitPos = emitPos; emitPos = p; }
+	void setEmitPos2(Vec3f p) { emitPos2 = p; }
 
 protected:
+	class Particle
+	{
+	public:
+		Particle(float m, Vec3f v, Vec3f a, Vec3f F, Vec3f p)
+			: m(m), v(v), a(a), F(F), p(p) {}
+		float m;
+		Vec3f v;
+		Vec3f a;
+		Vec3f p;
+		Vec3f F;
+		float age{ 0 };
+	};
+
+	int num_particles{ 2000 };
+	//Particle* particles;
 	
+	vector<Particle> particles;
+	vector<vector<Particle>> baked_particles;
 
-
+	float time_stamp;
+	Vec3f emitPos{ 0, 0, 0 };
+	Vec3f emitPos2{ 0, 0, 0 };
+	Vec3f lastEmitPos{ 0, 0, 0 };
+	Vec3f initialV{ 0, 0, 0 };
+	float mass;
 	/** Some baking-related state **/
 	float bake_fps;						// frame rate at which simulation was baked
 	float bake_start_time;				// time at which baking started 
@@ -91,5 +115,5 @@ protected:
 
 };
 
-
+Mat4f getModelViewMatrix();
 #endif	// __PARTICLE_SYSTEM_H__

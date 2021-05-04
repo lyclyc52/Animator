@@ -16,7 +16,7 @@ using namespace std;
 #endif // _MSC_VER >= 1300
 
 #include <cmath>
-
+#include <windows.h>
 #pragma warning(push)
 #pragma warning(disable : 4244)
 
