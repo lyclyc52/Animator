@@ -1084,39 +1084,6 @@ void drawBodyOut(float h)
 	setDiffuseColor(0.5f, 0.5f, 0);
 }
 
-void init_texture()
-{
-	GLuint texture_id;
-
-	int w, h; // should be same
-	unsigned char* im = readBMP("P:/COMP4411/2_Modeler/Modeler/texture.bmp", w, h);
-	if (im == NULL)
-	{
-		fl_alert("Can't load bitmap file");
-		return;
-	}
-	/*unsigned char* im_scaled[512*512*4];
-	gluScaleImage(GL_RGB, w, h,
-		GL_UNSIGNED_BYTE, im, 512, 512,
-		GL_UNSIGNED_BYTE, im_scaled);*/
-		//delete[] im;
-		// enable textures
-	glEnable(GL_TEXTURE_2D);
-	glGenTextures(1, &texture_id);
-	glBindTexture(GL_TEXTURE_2D, texture_id);
-	// sample: specify texture parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
-	// set the active texture
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, 512, 512, 0, GL_RGB, GL_UNSIGNED_BYTE, im);
-	//delete[] im;
-	if (glGetError() != GL_NO_ERROR)
-		fl_alert("%d", glGetError());
-
-
-}
-
 
 void drawCircleRing()
 {
@@ -1177,11 +1144,6 @@ float curve2(float x) { return 0; }
 // method of ModelerView to draw out SampleModel
 void RobotModel::draw()
 {
-	if (!init)
-	{
-		init_texture();
-		init = true;
-	}
 	if (VAL(TEXTURE_MAPPING) == 1)
 		glEnable(GL_TEXTURE_2D);
 	else
