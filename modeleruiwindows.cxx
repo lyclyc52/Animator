@@ -8,6 +8,7 @@ Fl_Menu_Item ModelerUIWindows::menu_m_pmbMenuBar[] = {
  {"&Save Animation Script As...", 0,  0, 0, 128, 0, 0, 14, 0},
  {"S&ave Current Frame As...", 0,  0, 0, 128, 0, 0, 14, 0},
  {"Sa&ve Movie As...", 0,  0, 0, 128, 0, 0, 14, 0},
+ {"Load height field...", 0,  0, 0, 128, 0, 0, 14, 0},
  {"E&xit", 0,  0, 0, 0, 0, 0, 14, 0},
  {0},
  {"&View", 0,  0, 0, 64, 0, 0, 14, 0},
@@ -28,7 +29,8 @@ Fl_Menu_Item* ModelerUIWindows::m_pmiOpenAniScript = ModelerUIWindows::menu_m_pm
 Fl_Menu_Item* ModelerUIWindows::m_pmiSaveAniScript = ModelerUIWindows::menu_m_pmbMenuBar + 2;
 Fl_Menu_Item* ModelerUIWindows::m_pmiSaveBitmapFile = ModelerUIWindows::menu_m_pmbMenuBar + 3;
 Fl_Menu_Item* ModelerUIWindows::m_pmiSaveMovie = ModelerUIWindows::menu_m_pmbMenuBar + 4;
-Fl_Menu_Item* ModelerUIWindows::m_pmiExit = ModelerUIWindows::menu_m_pmbMenuBar + 5;
+Fl_Menu_Item* ModelerUIWindows::m_pmiloadHeightField = ModelerUIWindows::menu_m_pmbMenuBar + 5;
+Fl_Menu_Item* ModelerUIWindows::m_pmiExit = ModelerUIWindows::menu_m_pmbMenuBar + 6;
 Fl_Menu_Item* ModelerUIWindows::m_pmiNormal = ModelerUIWindows::menu_m_pmbMenuBar + 8;
 Fl_Menu_Item* ModelerUIWindows::m_pmiFlatShaded = ModelerUIWindows::menu_m_pmbMenuBar + 9;
 Fl_Menu_Item* ModelerUIWindows::m_pmiWireFrame = ModelerUIWindows::menu_m_pmbMenuBar + 10;

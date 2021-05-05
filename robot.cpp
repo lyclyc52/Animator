@@ -11,6 +11,7 @@
 #include "mat.h"
 #include "vec.h"
 #include "particleSystem.h"
+#include "modelerui.h"
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502
 #endif
@@ -56,7 +57,7 @@ enum SampleModelControls
 
 	PARTICLE_CLOTH_POS_X, PARTICLE_CLOTH_POS_Y, PARTICLE_CLOTH_POS_Z,
 
-	FLOCKING,
+	FLOCKING, HEIGHT_FIELD,
 
 	NUMCONTROLS
 };
@@ -1491,6 +1492,19 @@ void RobotModel::draw()
 		}
 		glPopMatrix();
 	}
+	if (VAL(HEIGHT_FIELD))
+	{
+		ModelerUI* ui = ModelerApplication::Instance()->getUI();
+		unsigned char* field = ui->m_nHeight_field;
+		if (field)
+		{
+			glPushMatrix();
+			glTranslated(-4, -12, -2);
+			glScaled(6, 2, 6);
+			drawHeightField(field, ui->m_nHeight_field_width, ui->m_nHeight_field_height);
+			glPopMatrix();
+		}
+	}
 	/*}
 	glPopMatrix();*/
 	endDraw();
@@ -1562,6 +1576,7 @@ int main()
 	controls[PARTICLE_CLOTH_POS_Z] = ModelerControl("cloth pos z", -10, 10, 0.5, -2);
 
 	controls[FLOCKING] = ModelerControl("Flocking", 0, 1, 1, 0);
+	controls[HEIGHT_FIELD] = ModelerControl("Height field", 0, 1, 1, 0);
 
 	ParticleSystem* ps = new ParticleSystem();
 	

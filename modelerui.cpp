@@ -25,6 +25,7 @@
 
 #include "modelerui.h"
 #include "camera.h"
+#include "bitmap.h"
 
 using namespace std;
 
@@ -40,12 +41,36 @@ inline void ModelerUI::cb_openAniScript_i(Fl_Menu_*, void*)
 		}
 	}
 }
+inline void ModelerUI::cb_loadHeightField_i(Fl_Menu_* o, void*)
+{
+	char* newfile = fl_file_chooser("load Height field Image?", "*.bmp", NULL);
+	if (newfile != NULL) {
+		unsigned char* data;
+		int				width, height;
+
+		if ((data = readBMP(newfile, width, height)) == NULL)
+		{
+			fl_alert("Can't load bitmap file");
+			return;
+		}
+		if (m_nHeight_field != NULL)
+			delete[] m_nHeight_field;
+		m_nHeight_field = data;
+		m_nHeight_field_height = height;
+		m_nHeight_field_width = width;
+		cout << "height field loaded! Enable the height field slider!" << endl;
+	}
+}
+
 
 void ModelerUI::cb_openAniScript(Fl_Menu_* o, void* v)
 {
 	((ModelerUI*)(o->parent()->user_data()))->cb_openAniScript_i(o,v);
 }
-
+void ModelerUI::cb_loadHeightField(Fl_Menu_* o, void* v)
+{
+	((ModelerUI*)(o->parent()->user_data()))->cb_loadHeightField_i(o, v);
+}
 inline void ModelerUI::cb_saveAniScript_i(Fl_Menu_*, void*)
 {
 	char *szFileName = fl_file_chooser("Save Animation Script As", "*.ani", NULL);
@@ -884,6 +909,7 @@ m_bSaveMovie(false)
 {
 	// setup all the callback functions...
 	m_pmiOpenAniScript->callback((Fl_Callback*)cb_openAniScript);
+	m_pmiloadHeightField->callback((Fl_Callback*)cb_loadHeightField);
 	m_pmiSaveAniScript->callback((Fl_Callback*)cb_saveAniScript);
 	m_pmiSaveBitmapFile->callback((Fl_Callback*)cb_saveBMPFile);
 	m_pmiSaveMovie->callback((Fl_Callback*)cb_saveMovie);

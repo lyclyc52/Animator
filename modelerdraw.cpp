@@ -2,6 +2,7 @@
 #include <FL/gl.h>
 #include <GL/glu.h>
 #include <cstdio>
+#include "vec.h"
 
 // ********************************************************
 // Support functions from previous version of modeler
@@ -412,5 +413,56 @@ void drawTriangle( double x1, double y1, double z1,
         glVertex3d( x2, y2, z2 );
         glVertex3d( x3, y3, z3 );
         glEnd();
+    }
+}
+
+void drawHeightField(unsigned char* m_nHeight_field, int m_nHeight_field_width,
+    int m_nHeight_field_height)
+{
+
+    double scale = 3;
+    for (int w = 0; w < m_nHeight_field_width - 1; w++)
+    {
+        for (int h = 0; h < m_nHeight_field_height - 1; h++)
+        {
+            double y1 =
+                (*(m_nHeight_field + (h * (m_nHeight_field_width)+w) * 3) * 0.299
+                    + *(m_nHeight_field + (h * (m_nHeight_field_width)+w) * 3 + 1) * 0.587
+                    + *(m_nHeight_field + (h * (m_nHeight_field_width)+w) * 3 + 2) * 0.114)
+                / 255.0 * scale;
+            double y2 =
+                (*(m_nHeight_field + (h * (m_nHeight_field_width)+w + 1) * 3) * 0.299
+                    + *(m_nHeight_field + (h * (m_nHeight_field_width)+w + 1) * 3 + 1) * 0.587
+                    + *(m_nHeight_field + (h * (m_nHeight_field_width)+w + 1) * 3 + 2) * 0.114)
+                / 255.0 * scale;
+            double y3 =
+                (*(m_nHeight_field + ((h + 1) * (m_nHeight_field_width)+w + 1) * 3) * 0.299
+                    + *(m_nHeight_field + ((h + 1) * (m_nHeight_field_width)+w + 1) * 3 + 1) * 0.587
+                    + *(m_nHeight_field + ((h + 1) * (m_nHeight_field_width)+w + 1) * 3 + 2) * 0.114)
+                / 255.0 * scale;
+            double y4 =
+                (*(m_nHeight_field + ((h + 1) * (m_nHeight_field_width)+w) * 3) * 0.299
+                    + *(m_nHeight_field + ((h + 1) * (m_nHeight_field_width)+w) * 3 + 1) * 0.587
+                    + *(m_nHeight_field + ((h + 1) * (m_nHeight_field_width)+w) * 3 + 2) * 0.114)
+                / 255.0 * scale;
+
+            Vec3f p1((double)h / (m_nHeight_field_height - 1) * scale, y1,
+                (double)w / (m_nHeight_field_width - 1) * scale);
+            Vec3f p2((double)(h) / (m_nHeight_field_height - 1) * scale, y2,
+               (double)(w + 1) / (m_nHeight_field_width - 1) * scale);
+            Vec3f p3((double)(h + 1) / (m_nHeight_field_height - 1) * scale, y3,
+                (double)(w + 1) / (m_nHeight_field_width - 1) * scale);
+            Vec3f p4((double)(h + 1) / (m_nHeight_field_height - 1) * scale, y4,
+                (double)(w) / (m_nHeight_field_width - 1) * scale);
+
+            setDiffuseColor(0.8f, 0.8f, 0.8f);
+            // todo : scale the color
+            drawTriangle(p1[0], p1[1], p1[2],
+                p3[0], p3[1], p3[2],
+                p2[0], p2[1], p2[2]);
+            drawTriangle(p1[0], p1[1], p1[2],
+                p3[0], p3[1], p3[2],
+                p4[0], p4[1], p4[2]);
+        }
     }
 }
