@@ -161,8 +161,12 @@ private:
 	inline void cb_is_apply_mask_i(Fl_Light_Button*, void*);
 	static void cb_is_apply_mask(Fl_Light_Button* o, void* v);
 	
-	inline void cb_apply_mask_i(Fl_Button*, void*);
-	static void cb_apply_mask(Fl_Button* o, void* v);
+	inline void cb_apply_i(Fl_Button*, void*);
+	static void cb_apply(Fl_Button* o, void* v);
+
+	inline void cb_has_inner_control_i(Fl_Light_Button*, void*);
+	static void cb_has_inner_control(Fl_Light_Button*, void*);
+
 };
 
 #endif

@@ -68,6 +68,10 @@ protected:
 
 	mutable std::vector<Point> m_ptvCtrlPts;
 	mutable std::vector<Point> m_ptvEvaluatedCurvePts;
+
+	//bonus
+	mutable std::vector<Point> m_ptvInnerCtrlPts;
+
 	mutable bool m_bDirty;
 
 	float m_tension;

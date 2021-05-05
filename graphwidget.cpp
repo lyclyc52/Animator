@@ -881,6 +881,15 @@ void GraphWidget::setMask(bool is_mask)
 	}
 }
 
+void GraphWidget::setInnerControl(bool has_inner)
+{
+	if (m_iCurrCurve >= 0) {
+		//cout << is_mask;
+		m_bhasInner = has_inner;
+		m_ppceCurveEvaluators[CURVE_TYPE_LANRIESENFELD]->has_inner_control = has_inner;
+		m_pcrvvCurves[m_iCurrCurve]->setDirtyTrue();
+	}
+}
 
 void GraphWidget::wrapCurve(int iCurve, bool bWrap)
 {

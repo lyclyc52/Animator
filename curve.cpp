@@ -372,6 +372,7 @@ void Curve::drawEvaluatedCurveSegments() const
 			glVertex2f(it->x, it->y);
 		}
 
+
 	glEnd();
 }
 
@@ -405,6 +406,12 @@ void Curve::drawControlPoints() const
 	glBegin(GL_POINTS);
 		for (std::vector<Point>::const_iterator kit = m_ptvCtrlPts.begin(); 
 			kit != m_ptvCtrlPts.end(); 
+			++kit) {
+			glVertex2f(kit->x, kit->y);
+		}
+
+		for (std::vector<Point>::const_iterator kit = m_ptvInnerCtrlPts.begin();
+			kit != m_ptvInnerCtrlPts.end();
 			++kit) {
 			glVertex2f(kit->x, kit->y);
 		}

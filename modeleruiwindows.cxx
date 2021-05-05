@@ -131,7 +131,7 @@ ModelerUIWindows::ModelerUIWindows() {
             o->labelsize(12);
             o->user_data((void*)(this));
           }
-          { Fl_Button* o = m_firstBonusWindowButton = new Fl_Button(425, 470, 75, 20, "Some Bonus");
+          { Fl_Button* o = m_firstBonusWindowButton = new Fl_Button(420, 470, 80, 20, "Some Bonus");
             o->labelsize(12);
             o->user_data((void*)(this));
           }
@@ -324,9 +324,14 @@ ModelerUIWindows::ModelerUIWindows() {
 
   //m_average_mask_check_button->callback(cb_filter_normalized);
 
-  m_average_mask_apply_button = new Fl_Button(130, 80, 80, 20, "&Apply");
-  m_average_mask_apply_button->user_data((void*)(this));
+  m_apply_button = new Fl_Button(130, 200, 80, 20, "&Apply");
+  m_apply_button->labelsize(12);
+  m_apply_button->user_data((void*)(this));
   //m_average_mask_apply_button->callback(cb_filter_apply);
+
+  m_inner_control_check_button = new Fl_Light_Button(20, 110, 110, 20, "Add inner control");
+  m_inner_control_check_button->labelsize(12);
+  m_inner_control_check_button->user_data((void*)(this));
 
   m_firstBonusWindow->end();
   

@@ -921,14 +921,16 @@ m_bSaveMovie(false)
 	m_pwndMainWnd->when(FL_HIDE);
 
 	//bonus
+	m_firstBonusWindowButton->callback((Fl_Callback*)cb_first_bonus_window_button);
+
 	m_pbtTesionSlider->callback((Fl_Callback*)cb_tension);
 
 	m_average_mask_input->callback((Fl_Callback*)cb_average_mask_input);
-	m_average_mask_apply_button->callback((Fl_Callback*)cb_apply_mask);
+	m_apply_button->callback((Fl_Callback*)cb_apply);
 	m_average_mask_check_button->callback((Fl_Callback*)cb_is_apply_mask);
 
-	m_firstBonusWindowButton->callback((Fl_Callback*)cb_first_bonus_window_button);
-
+	
+	m_inner_control_check_button -> callback((Fl_Callback*)cb_has_inner_control);
 
 
 
@@ -1147,11 +1149,27 @@ void ModelerUI::cb_is_apply_mask(Fl_Light_Button* o, void* v)
 }
 
 
-inline void ModelerUI::cb_apply_mask_i(Fl_Button*, void*)
+inline void ModelerUI::cb_has_inner_control_i(Fl_Light_Button*, void*)
+{
+	if (m_inner_control_check_button->value() == 1) {
+		m_pwndGraphWidget->setInnerControl(true);
+	}
+	else if (m_inner_control_check_button->value() == 0) {
+		m_pwndGraphWidget->setInnerControl(false);
+	}
+}
+void ModelerUI::cb_has_inner_control(Fl_Light_Button* o, void* v)
+{
+	((ModelerUI*)(o->user_data()))->cb_has_inner_control_i(o, v);
+}
+
+
+
+inline void ModelerUI::cb_apply_i(Fl_Button*, void*)
 {
 	m_pwndGraphWidget->redraw();
 }
-void ModelerUI::cb_apply_mask(Fl_Button* o, void* v)
+void ModelerUI::cb_apply(Fl_Button* o, void* v)
 {
-	((ModelerUI*)(o->user_data()))->cb_apply_mask_i(o, v);
+	((ModelerUI*)(o->user_data()))->cb_apply_i(o, v);
 }

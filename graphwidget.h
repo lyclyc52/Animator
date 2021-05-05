@@ -111,6 +111,7 @@ public:
 	//bonus
 	void setTension(float tension);
 	void setMask(bool is_mask);
+	void setInnerControl(bool has_inner);
 
 	// note that this value is evaluated lazily (it's only updated
 	// after a redraw.
@@ -136,6 +137,9 @@ protected:
 	bool m_bRButtonDown;
 	bool m_bPanning;
 	int m_iMouseX, m_iMouseY, m_iMouseDX, m_iMouseDY;
+
+	//bonus
+	bool m_bhasInner{false};
 
 	// the current viewport (for zoomin). 
 	// (left, right, bottom, top) = (0, 1, 0, 1) means that there's no zoomin.
