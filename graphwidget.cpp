@@ -28,7 +28,9 @@
 #include "BezierCurveEvaluator.h"
 #include "B-splinecurveevaluator.h"
 #include "Catmull-Romcurveevaluator.h"
-
+#include "C2interpolatingcurveevaluator.h"
+#include "LaneRiesenfeldcurveevaluator.h"
+#include "Polynomialcurveevaluator.h"
 #define LEFT		1
 #define MIDDLE		2
 #define RIGHT		3
@@ -122,8 +124,10 @@ m_flcCurrCurve(FL_BLACK)
 	m_ppceCurveEvaluators[CURVE_TYPE_BEZIER] = new BezierCurveEvaluator();
 	m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM] = new CatmullRomCurveEvaluator();
 	// Note that C2-Interpolating curve is not a requirement
-	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new LinearCurveEvaluator();
-
+	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new C2InterpolatingCurveEvaluator();
+	
+	m_ppceCurveEvaluators[CURVE_TYPE_LANRIESENFELD] = new LaneRiesenfeldCurveEvaluator();
+	m_ppceCurveEvaluators[CURVE_TYPE_POLYNOMIAL] = new PolynomialCurveEvaluator();
 }
 
 GraphWidget::~GraphWidget()
@@ -916,7 +920,7 @@ void GraphWidget::drawCurve(int iCurve, int iColor) const
 	m_pcrvvCurves[iCurve]->drawEvaluatedCurveSegments();
 	if (iCurve == m_iCurrCurve)
 		glLineWidth(1.0);
-	std::cout << m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension << std::endl;
+	//std::cout << m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension << std::endl;
 	m_pcrvvCurves[iCurve]->drawControlPoints();
 
 	glColor3f(1.0f, 1.0f, 1.0f); // white

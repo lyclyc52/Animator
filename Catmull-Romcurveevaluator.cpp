@@ -1,5 +1,5 @@
 #pragma once
-#pragma once
+
 #include "Catmull-RomCurveEvaluator.h"
 #include <assert.h>
 #include "mat.h"
