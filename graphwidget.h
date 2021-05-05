@@ -87,6 +87,8 @@ public:
 	float leftTime() const;
 	float rightTime() const;
 
+
+
 	float currTime() const;
 	void currTime(float fCurrTime);
 	float endTime() const;
@@ -108,6 +110,7 @@ public:
 
 	//bonus
 	void setTension(float tension);
+	void setMask(bool is_mask);
 
 	// note that this value is evaluated lazily (it's only updated
 	// after a redraw.
@@ -121,6 +124,10 @@ public:
 
 	Point windowToGrid( Point p ) ;
 	Point gridToWindow( Point p ) ;
+
+	CurveEvaluator* getEvaluator() {
+		return m_ppceCurveEvaluators[CURVE_TYPE_LANRIESENFELD];
+	}
 
 protected:
 	int m_iEventToDo;
@@ -180,6 +187,7 @@ protected:
 
 	Point curveToWindow(int iCurve, const Point& ptCurve) const;
 	Point windowToCurve(int iCurve, const Point& ptWindow) const;
+
 };
 
 #endif // GRAPHWIDGET_H_INCLUDED

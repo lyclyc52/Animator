@@ -154,7 +154,15 @@ private:
 	static void cb_first_bonus_window_button(Fl_Button*, void*);
 	inline void cb_tension_i(Fl_Value_Slider*, void*);
 	static void cb_tension(Fl_Value_Slider*, void*);
+
+	inline void cb_average_mask_input_i(Fl_Widget* o, void* v);
+	static void cb_average_mask_input(Fl_Widget* o, void* v);
+
+	inline void cb_is_apply_mask_i(Fl_Light_Button*, void*);
+	static void cb_is_apply_mask(Fl_Light_Button* o, void* v);
 	
+	inline void cb_apply_mask_i(Fl_Button*, void*);
+	static void cb_apply_mask(Fl_Button* o, void* v);
 };
 
 #endif

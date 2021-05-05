@@ -872,6 +872,16 @@ void GraphWidget::setTension(float tension)
 	}
 }
 
+void GraphWidget::setMask(bool is_mask)
+{
+	if (m_iCurrCurve >= 0) {
+		//cout << is_mask;
+		m_ppceCurveEvaluators[CURVE_TYPE_LANRIESENFELD]->isMask = is_mask;
+		m_pcrvvCurves[m_iCurrCurve]->setDirtyTrue();
+	}
+}
+
+
 void GraphWidget::wrapCurve(int iCurve, bool bWrap)
 {
 	m_pcrvvCurves[iCurve]->wrap(bWrap);

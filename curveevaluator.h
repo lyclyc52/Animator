@@ -11,6 +11,8 @@ class CurveEvaluator
 {
 public:
 	static float tension;
+	static std::vector<float> mask;
+	static bool isMask;
 	virtual ~CurveEvaluator(void);
 	virtual void evaluateCurve(const std::vector<Point>& control_points, 
 							   std::vector<Point>& evaluated_curve_points, 
