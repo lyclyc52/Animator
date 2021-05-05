@@ -54,6 +54,8 @@ enum SampleModelControls
 
 	CHANGE_HAND, JETTING, LASING,
 
+	PARTICLE_CLOTH_POS_X, PARTICLE_CLOTH_POS_Y, PARTICLE_CLOTH_POS_Z,
+
 	NUMCONTROLS
 };
 
@@ -1442,6 +1444,8 @@ void RobotModel::draw()
 				p4 = p4 / p4[3];
 				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
 				ps->setEmitPos({ p4[0], p4[1], p4[2] });
+				ps->topLeft = Vec3f(VAL(PARTICLE_CLOTH_POS_X),
+					VAL(PARTICLE_CLOTH_POS_Y), VAL(PARTICLE_CLOTH_POS_Z));
 			}
 			glPopMatrix();
 		}
@@ -1540,6 +1544,10 @@ int main()
 	controls[JETTING] = ModelerControl("Jetting", 0, 1, 1, 0);
 
 	controls[LASING] = ModelerControl("Lasing!", 0, 1, 1, 0);
+
+	controls[PARTICLE_CLOTH_POS_X] = ModelerControl("cloth pos x", -10, 10, 0.5, -2);
+	controls[PARTICLE_CLOTH_POS_Y] = ModelerControl("cloth pos y", -10, 10, 0.5, 1.5);
+	controls[PARTICLE_CLOTH_POS_Z] = ModelerControl("cloth pos z", -10, 10, 0.5, -2);
 
 	ParticleSystem* ps = new ParticleSystem();
 	
