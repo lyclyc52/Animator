@@ -76,6 +76,8 @@ public:
 	void setEmitPos(Vec3f p) { lastEmitPos = emitPos; emitPos = p; }
 	void setEmitPos2(Vec3f p) { emitPos2 = p; }
 	Vec3f topLeft{ -2, 1.5, -2 };
+	// flocking
+	bool flocking{ false };
 protected:
 	class Particle
 	{
@@ -115,6 +117,19 @@ protected:
 	float shearL0{ clothHeight / (numParticlesHeight - 1) * sqrtf(2) };
 	float shearK{ 10 * 10 / shearL0 };
 	vector<vector<Particle>> clothParticles;
+
+	// flockings
+	int numFlockings{ 20 };
+	float kAlign = 0.5;
+	float kCohe = 0.2;
+	float kSep = 0.4;
+	float kFar = 0.5;
+	float localThresh = 0.5;
+	float collisionThresh = 0.2;
+	float cohesionThresh = 0.25;
+	float farThresh = 1;
+	float fastVThresh = 0.8;
+	int minNeighbour = 5;
 	/** Some baking-related state **/
 	float bake_fps;						// frame rate at which simulation was baked
 	float bake_start_time;				// time at which baking started 

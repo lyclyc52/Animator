@@ -56,6 +56,8 @@ enum SampleModelControls
 
 	PARTICLE_CLOTH_POS_X, PARTICLE_CLOTH_POS_Y, PARTICLE_CLOTH_POS_Z,
 
+	FLOCKING,
+
 	NUMCONTROLS
 };
 
@@ -1151,6 +1153,8 @@ void RobotModel::draw()
 	else
 		glDisable(GL_TEXTURE_2D);
 
+	ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+	ps->flocking = VAL(FLOCKING);
 	// This call takes care of a lot of the nasty projection 
 	// matrix stuff.  Unless you want to fudge directly with the 
 	// projection matrix, don't bother with this ...
@@ -1170,219 +1174,250 @@ void RobotModel::draw()
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_intensity);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light_intensity);
 
-
-	// draw the floor
-	setAmbientColor(.1f, .1f, .1f);
-	setDiffuseColor(.1f, 0,0);
-	glPushMatrix();
-	glTranslated(-25, -8, -25);
-
-	drawTextureBox(50, 0.01f, 50);
-
-	//drawBox(50, 0.01f, 50);
-
-	glPopMatrix();
-
-
-
-	// draw the model
-	setDiffuseColor(0.5f, 0.5f, 0);
-
-	//drawSphere(3);
-	//glPopMatrix();
-	// parameters
-	float r1 = 3; // r of the body
-	float h_head = 1.8;
-	float r_top = 1.5, r_bottom = 2;
-	float h_middle = 6;
-	float h_bottom = 1.5;
-	float h_top = 1;
-	float h_leg = 1.8;
-	float h_feet = 0.8;
-	float body_width_scale = 1;
-	float body_depth_scale = 0.8;
-
-
-	glTranslated(VAL(XPOS), h_bottom + h_feet + h_leg + VAL(YPOS), VAL(ZPOS));
-	glRotated(90, 0, 1, 0);
-	glTranslated(0, -3, 0);
-	glScaled(0.6, 0.6, 0.6);
-
-	glPushMatrix();
+	if (VAL(FLOCKING))
 	{
-		// middle body
+
+	}
+	else
+	{
 
 
-		glScaled(body_depth_scale, 1, body_width_scale);
-
-		glTranslated(0, -h_middle, 0);
-		setDiffuseColor(0.5, 0.5, 0);
-		drawBodyOut(h_middle);
-		glTranslated(0, h_middle, 0);
-		glScaled(1 / body_depth_scale, 1, 1 / body_width_scale);
-
-
+		// draw the floor
+		setAmbientColor(.1f, .1f, .1f);
+		setDiffuseColor(.1f, 0, 0);
 		glPushMatrix();
-		{
-			// up shoulder right
-			glRotated(20, 1, 0, 0);
-			glTranslated(-1.3, 0, 1.5);
-			setDiffuseColor(0.2, 0.2, 0.2);
-			//draw_shoulder_up_helper();
-		}
+		glTranslated(-25, -8, -25);
+
+		drawTextureBox(50, 0.01f, 50);
+
+		//drawBox(50, 0.01f, 50);
+
 		glPopMatrix();
 
-		glPushMatrix();
-		{
-			// up shoulder left
-			glRotated(-20, 1, 0, 0);
-			glTranslated(-1.3, 0, -2);
-			setDiffuseColor(0.2, 0.2, 0.2);
-			//draw_shoulder_up_helper();
-		}
-		glPopMatrix();
 
-		float delta1 = 1.5;
+
+		// draw the model
+		setDiffuseColor(0.5f, 0.5f, 0);
+
+		//drawSphere(3);
+		//glPopMatrix();
+		// parameters
+		float r1 = 3; // r of the body
+		float h_head = 1.8;
+		float r_top = 1.5, r_bottom = 2;
+		float h_middle = 6;
+		float h_bottom = 1.5;
+		float h_top = 1;
+		float h_leg = 1.8;
+		float h_feet = 0.8;
+		float body_width_scale = 1;
+		float body_depth_scale = 0.8;
+
+
+		glTranslated(VAL(XPOS), h_bottom + h_feet + h_leg + VAL(YPOS), VAL(ZPOS));
+		glRotated(90, 0, 1, 0);
+		glTranslated(0, -3, 0);
+		glScaled(0.6, 0.6, 0.6);
+
 		glPushMatrix();
 		{
-			glRotated(-90, 0, 1.0, 0);
-			glTranslated(-4 - delta1, -1, 0);
+			// middle body
+
+
+			glScaled(body_depth_scale, 1, body_width_scale);
+
+			glTranslated(0, -h_middle, 0);
+			setDiffuseColor(0.5, 0.5, 0);
+			drawBodyOut(h_middle);
+			glTranslated(0, h_middle, 0);
+			glScaled(1 / body_depth_scale, 1, 1 / body_width_scale);
+
+
 			glPushMatrix();
 			{
-				setDiffuseColor(1, 1, 0);
-				glTranslated(1.5, 0, -1);
-				drawBox(2, 1, 1);
+				// up shoulder right
+				glRotated(20, 1, 0, 0);
+				glTranslated(-1.3, 0, 1.5);
+				setDiffuseColor(0.2, 0.2, 0.2);
+				//draw_shoulder_up_helper();
 			}
 			glPopMatrix();
-			glRotated(VAL(RIGHT_ARM_X_ROTATE), 1.0, 0, 0);
-			drawRightArm();
-		}
-		glPopMatrix();
 
-		glPushMatrix();
-		{
-			glRotated(-90, 0, 1.0, 0);
-
-			glTranslated(4 + delta1, -1, 0);
 			glPushMatrix();
 			{
-				setDiffuseColor(1, 1, 0);
-				glTranslated(-3.5, 0, -1);
-				drawBox(2, 1, 1);
+				// up shoulder left
+				glRotated(-20, 1, 0, 0);
+				glTranslated(-1.3, 0, -2);
+				setDiffuseColor(0.2, 0.2, 0.2);
+				//draw_shoulder_up_helper();
 			}
 			glPopMatrix();
 
-			glRotated(VAL(LEFT_ARM_X_ROTATE), 1.0, 0, 0);
-			drawLeftArm();
-		}
-		glPopMatrix();
-
-		glPushMatrix();
-		{
-			// head
-			float diff = 0.12;
-			float w_head = 2.2;
-			float h1 = 0.2, h2 = 1.3, h3 = h_head - h1 - h2;
-			float w1 = 0.1, w2 = w_head / 2 - w1;
-			float h_depth = 1.3;
-
-			glPushMatrix();  // whole head
+			float delta1 = 1.5;
+			glPushMatrix();
 			{
-				glRotated(VAL(HEAD_ROTATE), 0, 1, 0);
-
+				glRotated(-90, 0, 1.0, 0);
+				glTranslated(-4 - delta1, -1, 0);
 				glPushMatrix();
 				{
 					setDiffuseColor(1, 1, 0);
-					// left head
-					float v[10][3] =
-					{
-						{0,       0,       0},
-						{0,       h_head,  0},
-						{0,       h2 + h3,   -w_head / 2},
-						{0,       h3,      -w_head / 2},
-						{0,       0,       -w2},
-						{h_depth, 0,       0},
-						{h_depth, h_head,  0},
-						{h_depth, h2 + h3, -w_head / 2},
-						{h_depth, h3,      -w_head / 2},
-						{h_depth, 0,       -w2}
-					};
-					glTranslated(-h_depth / 2, 0, -diff / 2);
-					draw_prism5_helper(v);
-
-					glPushMatrix();
-					{
-						// eye
-						setAmbientColor(.1f, .1f, .1f);
-						setDiffuseColor(140 / 255.0, 243 / 255.0, 252 / 255.0);
-
-						glTranslated(0, h_head / 2, -w_head / 4);
-						drawSphere(0.2);
-
-						setAmbientColor(.1f, .1f, .1f);
-						setDiffuseColor(0.5f, 0.5f, 0);
-
-					}
-					glPopMatrix();
-
+					glTranslated(1.5, 0, -1);
+					drawBox(2, 1, 1);
 				}
 				glPopMatrix();
+				glRotated(VAL(RIGHT_ARM_X_ROTATE), 1.0, 0, 0);
+				drawRightArm();
+			}
+			glPopMatrix();
+
+			glPushMatrix();
+			{
+				glRotated(-90, 0, 1.0, 0);
+
+				glTranslated(4 + delta1, -1, 0);
 				glPushMatrix();
 				{
-					// right head
-					float v[10][3] =
-					{
-						{0,       0,       0},
-						{0,       h_head,  0},
-						{0,       h2 + h3, w_head / 2},
-						{0,       h3,      w_head / 2},
-						{0,       0,       w2},
-						{h_depth, 0,       0},
-						{h_depth, h_head,  0},
-						{h_depth, h2 + h3, w_head / 2},
-						{h_depth, h3,      w_head / 2},
-						{h_depth, 0,       w2}
-					};
-					glTranslated(-h_depth / 2, 0, diff / 2);
-					draw_prism5_helper(v);
+					setDiffuseColor(1, 1, 0);
+					glTranslated(-3.5, 0, -1);
+					drawBox(2, 1, 1);
+				}
+				glPopMatrix();
+
+				glRotated(VAL(LEFT_ARM_X_ROTATE), 1.0, 0, 0);
+				drawLeftArm();
+			}
+			glPopMatrix();
+
+			glPushMatrix();
+			{
+				// head
+				float diff = 0.12;
+				float w_head = 2.2;
+				float h1 = 0.2, h2 = 1.3, h3 = h_head - h1 - h2;
+				float w1 = 0.1, w2 = w_head / 2 - w1;
+				float h_depth = 1.3;
+
+				glPushMatrix();  // whole head
+				{
+					glRotated(VAL(HEAD_ROTATE), 0, 1, 0);
 
 					glPushMatrix();
 					{
-						// eye
-						setAmbientColor(.1f, .1f, .1f);
-						setDiffuseColor(140 / 255.0, 243 / 255.0, 252 / 255.0);
+						setDiffuseColor(1, 1, 0);
+						// left head
+						float v[10][3] =
+						{
+							{0,       0,       0},
+							{0,       h_head,  0},
+							{0,       h2 + h3,   -w_head / 2},
+							{0,       h3,      -w_head / 2},
+							{0,       0,       -w2},
+							{h_depth, 0,       0},
+							{h_depth, h_head,  0},
+							{h_depth, h2 + h3, -w_head / 2},
+							{h_depth, h3,      -w_head / 2},
+							{h_depth, 0,       -w2}
+						};
+						glTranslated(-h_depth / 2, 0, -diff / 2);
+						draw_prism5_helper(v);
 
+						glPushMatrix();
+						{
+							// eye
+							setAmbientColor(.1f, .1f, .1f);
+							setDiffuseColor(140 / 255.0, 243 / 255.0, 252 / 255.0);
 
-						glTranslated(0, h_head / 2, w_head / 4);
-						drawSphere(0.28);
+							glTranslated(0, h_head / 2, -w_head / 4);
+							drawSphere(0.2);
 
-						setAmbientColor(.1f, .1f, .1f);
-						setDiffuseColor(0.5f, 0.5f, 0);
+							setAmbientColor(.1f, .1f, .1f);
+							setDiffuseColor(0.5f, 0.5f, 0);
+
+						}
+						glPopMatrix();
 
 					}
 					glPopMatrix();
+					glPushMatrix();
+					{
+						// right head
+						float v[10][3] =
+						{
+							{0,       0,       0},
+							{0,       h_head,  0},
+							{0,       h2 + h3, w_head / 2},
+							{0,       h3,      w_head / 2},
+							{0,       0,       w2},
+							{h_depth, 0,       0},
+							{h_depth, h_head,  0},
+							{h_depth, h2 + h3, w_head / 2},
+							{h_depth, h3,      w_head / 2},
+							{h_depth, 0,       w2}
+						};
+						glTranslated(-h_depth / 2, 0, diff / 2);
+						draw_prism5_helper(v);
 
+						glPushMatrix();
+						{
+							// eye
+							setAmbientColor(.1f, .1f, .1f);
+							setDiffuseColor(140 / 255.0, 243 / 255.0, 252 / 255.0);
+
+
+							glTranslated(0, h_head / 2, w_head / 4);
+							drawSphere(0.28);
+
+							setAmbientColor(.1f, .1f, .1f);
+							setDiffuseColor(0.5f, 0.5f, 0);
+
+						}
+						glPopMatrix();
+
+					}
+					glPopMatrix();
 				}
 				glPopMatrix();
 			}
 			glPopMatrix();
-		}
-		glPopMatrix();
-		glPushMatrix();
-		{
-			//// bottom body
-
-			float leg_width = 0.9;
 			glPushMatrix();
 			{
-				// left leg
-				glTranslated(-0.6, -h_middle - h_leg, -leg_width / 2 + 1.1);
-				glRotated(20, 0, 1, 0);
-				drawTextureBox(leg_width, h_leg, leg_width);
+				//// bottom body
+
+				float leg_width = 0.9;
 				glPushMatrix();
 				{
+					// left leg
+					glTranslated(-0.6, -h_middle - h_leg, -leg_width / 2 + 1.1);
+					glRotated(20, 0, 1, 0);
+					drawTextureBox(leg_width, h_leg, leg_width);
+					glPushMatrix();
+					{
+						// feet
+						glRotated(VAL(LEFT_FEET_ROTATE), 0, 0, 1);
+						float v[6][3] =
+						{
+							{0 + leg_width, 0, 0},
+							{0 + leg_width, 0, leg_width},
+							{-2, -h_feet, 0 - 0.5},
+							{-2, -h_feet, leg_width + 0.5},
+							{0 + leg_width, -h_feet, 0},
+							{0 + leg_width, -h_feet, leg_width},
+						};
+
+						draw_feet_helper(v);
+					}
+					glPopMatrix();
+				}
+				glPopMatrix();
+				glPushMatrix();
+				{
+					// right leg
+					glTranslated(-0.6, -h_middle - h_leg, -leg_width / 2 - 1.1);
+					glRotated(-20, 0, 1, 0);
+					drawTextureBox(leg_width, h_leg, leg_width);
+
 					// feet
-					glRotated(VAL(LEFT_FEET_ROTATE), 0, 0, 1);
+					glRotated(VAL(RIGHT_FEET_ROTATE), 0, 0, 1);
 					float v[6][3] =
 					{
 						{0 + leg_width, 0, 0},
@@ -1398,87 +1433,64 @@ void RobotModel::draw()
 				glPopMatrix();
 			}
 			glPopMatrix();
-			glPushMatrix();
-			{
-				// right leg
-				glTranslated(-0.6, -h_middle - h_leg, -leg_width / 2 - 1.1);
-				glRotated(-20, 0, 1, 0);
-				drawTextureBox(leg_width, h_leg, leg_width);
 
-				// feet
-				glRotated(VAL(RIGHT_FEET_ROTATE), 0, 0, 1);
-				float v[6][3] =
+			glPushMatrix();
+			int h = r1 + 2, h2 = 2.5;
+			{
+				// left jet
+				glTranslated(r1 * body_depth_scale, r1 / 2 + 2, -2);
+				glRotated(90, 1, 0, 0);
+				drawCylinder(h, 0.35, 0.35);
+
+				if (VAL(JETTING) == 1)
+					drawJetting();
+				setDiffuseColor(0.5, 0.5, 0);
+				glPushMatrix();
 				{
-					{0 + leg_width, 0, 0},
-					{0 + leg_width, 0, leg_width},
-					{-2, -h_feet, 0 - 0.5},
-					{-2, -h_feet, leg_width + 0.5},
-					{0 + leg_width, -h_feet, 0},
-					{0 + leg_width, -h_feet, leg_width},
-				};
-
-				draw_feet_helper(v);
+					// jet header
+					drawCylinder(h2, 0.15, 0.55);
+					// set particle spawn position
+					Mat4f worldM = cameraM.inverse() * getModelViewMatrix();
+					Vec4f p4 = worldM * Vec4f(0, 0, 0, 1);
+					p4 = p4 / p4[3];
+					ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+					ps->setEmitPos({ p4[0], p4[1], p4[2] });
+					ps->topLeft = Vec3f(VAL(PARTICLE_CLOTH_POS_X),
+						VAL(PARTICLE_CLOTH_POS_Y), VAL(PARTICLE_CLOTH_POS_Z));
+				}
+				glPopMatrix();
 			}
 			glPopMatrix();
-		}
-		glPopMatrix();
 
-		glPushMatrix();
-		int h = r1 + 2, h2 = 2.5;
-		{
-			// left jet
-			glTranslated(r1 * body_depth_scale, r1 / 2 + 2, -2);
-			glRotated(90, 1, 0, 0);
-			drawCylinder(h, 0.35, 0.35);
-
-			if (VAL(JETTING) == 1)
-				drawJetting();
-			setDiffuseColor(0.5, 0.5, 0);
 			glPushMatrix();
 			{
-				// jet header
-				drawCylinder(h2, 0.15, 0.55);
-				// set particle spawn position
-				Mat4f worldM = cameraM.inverse() * getModelViewMatrix();
-				Vec4f p4 = worldM * Vec4f(0, 0, 0, 1);
-				p4 = p4 / p4[3];
-				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
-				ps->setEmitPos({ p4[0], p4[1], p4[2] });
-				ps->topLeft = Vec3f(VAL(PARTICLE_CLOTH_POS_X),
-					VAL(PARTICLE_CLOTH_POS_Y), VAL(PARTICLE_CLOTH_POS_Z));
-			}
-			glPopMatrix();
-		}
-		glPopMatrix();
+				// right jet
+				glTranslated(r1 * body_depth_scale, r1 / 2 + 2, 2);
+				glRotated(90, 1, 0, 0);
+				drawCylinder(h, 0.35, 0.35);
 
-		glPushMatrix();
-		{
-			// right jet
-			glTranslated(r1 * body_depth_scale, r1 / 2 + 2, 2);
-			glRotated(90, 1, 0, 0);
-			drawCylinder(h, 0.35, 0.35);
-
-			if (VAL(JETTING) == 1)
-				drawJetting();
+				if (VAL(JETTING) == 1)
+					drawJetting();
 
 
-			setDiffuseColor(0.5, 0.5, 0);
-			glPushMatrix();
-			{
-				// jet header
-				drawCylinder(h2, 0.15, 0.5);
-				// set particle spawn position
-				Mat4f worldM = cameraM.inverse() * getModelViewMatrix();
-				Vec4f p4 = worldM * Vec4f(0, 0, 0, 1);
-				p4 = p4 / p4[3];
-				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
-				ps->setEmitPos2({ p4[0], p4[1], p4[2] });
+				setDiffuseColor(0.5, 0.5, 0);
+				glPushMatrix();
+				{
+					// jet header
+					drawCylinder(h2, 0.15, 0.5);
+					// set particle spawn position
+					Mat4f worldM = cameraM.inverse() * getModelViewMatrix();
+					Vec4f p4 = worldM * Vec4f(0, 0, 0, 1);
+					p4 = p4 / p4[3];
+					ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+					ps->setEmitPos2({ p4[0], p4[1], p4[2] });
+				}
+				glPopMatrix();
 			}
 			glPopMatrix();
 		}
 		glPopMatrix();
 	}
-	glPopMatrix();
 	/*}
 	glPopMatrix();*/
 	endDraw();
@@ -1548,6 +1560,8 @@ int main()
 	controls[PARTICLE_CLOTH_POS_X] = ModelerControl("cloth pos x", -10, 10, 0.5, -2);
 	controls[PARTICLE_CLOTH_POS_Y] = ModelerControl("cloth pos y", -10, 10, 0.5, 1.5);
 	controls[PARTICLE_CLOTH_POS_Z] = ModelerControl("cloth pos z", -10, 10, 0.5, -2);
+
+	controls[FLOCKING] = ModelerControl("Flocking", 0, 1, 1, 0);
 
 	ParticleSystem* ps = new ParticleSystem();
 	
