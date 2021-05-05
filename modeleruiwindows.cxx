@@ -307,9 +307,9 @@ ModelerUIWindows::ModelerUIWindows() {
 
   m_pbtTesionSlider->labelsize(12);
   m_pbtTesionSlider->minimum(0.00);
-  m_pbtTesionSlider->maximum(0.50);
+  m_pbtTesionSlider->maximum(0.70);
   m_pbtTesionSlider->step(0.01);
-  m_pbtTesionSlider->value(0.30);
+  m_pbtTesionSlider->value(0.50);
   m_pbtTesionSlider->align(FL_ALIGN_LEFT);
 
   m_firstBonusWindow->end();

@@ -148,6 +148,8 @@
   <ItemGroup>
     <ClCompile Include="B-splinecurveevaluator.cpp" />
     <ClCompile Include="Beziercurveevaluator.cpp" />
+    <ClCompile Include="C2interpolatingcurveevaluator.cpp" />
+    <ClCompile Include="C2interpolatingcurveevaluator.h" />
     <ClCompile Include="Catmull-Romcurveevaluator.cpp" />
     <ClCompile Include="curve.cpp">
       <AdditionalIncludeDirectories Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

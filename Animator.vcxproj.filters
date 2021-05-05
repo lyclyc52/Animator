@@ -111,6 +111,12 @@
     <ClCompile Include="Catmull-Romcurveevaluator.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
+    <ClCompile Include="C2interpolatingcurveevaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClCompile>
+    <ClCompile Include="C2interpolatingcurveevaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="curve.h">
