@@ -29,7 +29,8 @@
 #include "B-splinecurveevaluator.h"
 #include "Catmull-Romcurveevaluator.h"
 #include "C2interpolatingcurveevaluator.h"
-
+#include "LaneRiesenfeldcurveevaluator.h"
+#include "Polynomialcurveevaluator.h"
 #define LEFT		1
 #define MIDDLE		2
 #define RIGHT		3
@@ -124,7 +125,9 @@ m_flcCurrCurve(FL_BLACK)
 	m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM] = new CatmullRomCurveEvaluator();
 	// Note that C2-Interpolating curve is not a requirement
 	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new C2InterpolatingCurveEvaluator();
-
+	
+	m_ppceCurveEvaluators[CURVE_TYPE_LANRIESENFELD] = new LaneRiesenfeldCurveEvaluator();
+	m_ppceCurveEvaluators[CURVE_TYPE_POLYNOMIAL] = new PolynomialCurveEvaluator();
 }
 
 GraphWidget::~GraphWidget()

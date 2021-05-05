@@ -117,6 +117,12 @@
     <ClCompile Include="C2interpolatingcurveevaluator.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
+    <ClCompile Include="Polynomialcurveevaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
+    <ClCompile Include="LaneRiesenfeldcurveevaluator.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="curve.h">
@@ -186,6 +192,12 @@
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
     <ClInclude Include="Catmull-Romcurveevaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="Polynomialcurveevaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="LaneRiesenfeldcurveevaluator.h">
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
   </ItemGroup>
