@@ -8,7 +8,7 @@
 #include <string>
 
 #include "Point.h"
-
+#include "curveevaluator.h"
 class CurveEvaluator;
 
 //using namespace std;
@@ -23,7 +23,7 @@ public:
 	Curve(std::istream& isInputStream);
 
 	void maxX(const float fNewMaxX);
-	void setEvaluator(const CurveEvaluator* pceEvaluator) { m_pceEvaluator = pceEvaluator; }
+	void setEvaluator(const CurveEvaluator* pceEvaluator) { m_pceEvaluator = pceEvaluator; };
 	float evaluateCurveAt(const float x) const;
 	void scaleX(const float fScale);
 	void addControlPoint(const Point& point);
@@ -45,15 +45,20 @@ public:
 	void wrap(bool bWrap);
 	bool wrap() const;
 
-	//bonus
-	void tension(float tension);
-	float tension() const;
+	// bonus
+	bool isInnerControlMode() const;
+	int getClosestInnerControlPoint(const Point& point, Point& ptCtrlPt) const;
+	void moveInnerControlPoints(const Point& ptOffset, const float fMinY, const float fMaxY);
+
 
 	void drawEvaluatedCurveSegments(void) const;
 	void drawControlPoints(void) const;
 	void drawControlPoint(int iCtrlPt) const;
 	void drawCurve(void) const;
 	void invalidate(void) const;
+
+	//bonus
+	void drawInnerControlPoint(void) const;
 
 	void toStream(std::ostream& output_stream) const;
 	void fromStream(std::istream& input_stream);
@@ -69,8 +74,7 @@ protected:
 	mutable std::vector<Point> m_ptvCtrlPts;
 	mutable std::vector<Point> m_ptvEvaluatedCurvePts;
 
-	//bonus
-	mutable std::vector<Point> m_ptvInnerCtrlPts;
+	
 
 	mutable bool m_bDirty;
 

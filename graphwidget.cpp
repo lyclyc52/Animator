@@ -96,26 +96,26 @@ static const Fl_Color flcvColors[CURVE_COLOR_COUNT] = {
 
 const static float ks_fViewportMargin = 0.01f;
 
-GraphWidget::GraphWidget(int x, int y, int w, int h, const char *label) :
-Fl_Gl_Window(x, y, w, h, label),
-m_bHasCtrlPtSelection(false),
-m_bHasZoomSelection(false),
-m_ivvCurrCtrlPts(),
-m_ppceCurveEvaluators(NULL),
-m_pcrvvCurves(),
-m_ivCurveTypes(),
-m_iCurrCurve(-1), 
-m_ivActiveCurves(),
-m_fEndTime(20.0f),
-m_fCurrTime(0.0f),
-m_rectCurrViewport(0.0f - ks_fViewportMargin, 1.0f + ks_fViewportMargin, 0.0f - ks_fViewportMargin, 1.0f + ks_fViewportMargin),
-m_bPanning(false),
-m_bHasEvent(false),
-m_bLButtonDown(false),
-m_bRButtonDown(false),
-m_flcCurrCurve(FL_BLACK)
+GraphWidget::GraphWidget(int x, int y, int w, int h, const char* label) :
+	Fl_Gl_Window(x, y, w, h, label),
+	m_bHasCtrlPtSelection(false),
+	m_bHasZoomSelection(false),
+	m_ivvCurrCtrlPts(),
+	m_ppceCurveEvaluators(NULL),
+	m_pcrvvCurves(),
+	m_ivCurveTypes(),
+	m_iCurrCurve(-1),
+	m_ivActiveCurves(),
+	m_fEndTime(20.0f),
+	m_fCurrTime(0.0f),
+	m_rectCurrViewport(0.0f - ks_fViewportMargin, 1.0f + ks_fViewportMargin, 0.0f - ks_fViewportMargin, 1.0f + ks_fViewportMargin),
+	m_bPanning(false),
+	m_bHasEvent(false),
+	m_bLButtonDown(false),
+	m_bRButtonDown(false),
+	m_flcCurrCurve(FL_BLACK)
 {
-	m_ppceCurveEvaluators = new CurveEvaluator*[CURVE_TYPE_COUNT];
+	m_ppceCurveEvaluators = new CurveEvaluator * [CURVE_TYPE_COUNT];
 
 	m_ppceCurveEvaluators[CURVE_TYPE_LINEAR] = new LinearCurveEvaluator();
 
@@ -125,7 +125,7 @@ m_flcCurrCurve(FL_BLACK)
 	m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM] = new CatmullRomCurveEvaluator();
 	// Note that C2-Interpolating curve is not a requirement
 	m_ppceCurveEvaluators[CURVE_TYPE_C2INTERPOLATING] = new C2InterpolatingCurveEvaluator();
-	
+
 	m_ppceCurveEvaluators[CURVE_TYPE_LANRIESENFELD] = new LaneRiesenfeldCurveEvaluator();
 	m_ppceCurveEvaluators[CURVE_TYPE_POLYNOMIAL] = new PolynomialCurveEvaluator();
 }
@@ -157,7 +157,7 @@ int GraphWidget::addCurve(const float fStartVal, const float fMinY, const float 
 
 void GraphWidget::curveType(int iCurve, int iCurveType)
 {
-	if (iCurve >= 0 && iCurve < m_pcrvvCurves.size() && 
+	if (iCurve >= 0 && iCurve < m_pcrvvCurves.size() &&
 		iCurveType >= 0 && iCurveType < CURVE_TYPE_COUNT) {
 		m_pcrvvCurves[iCurve]->setEvaluator(m_ppceCurveEvaluators[iCurveType]);
 		m_ivCurveTypes[iCurve] = iCurveType;
@@ -172,7 +172,7 @@ void GraphWidget::curveType(int iCurve, int iCurveType)
 
 void GraphWidget::currCurveType(int iCurveType)
 {
-	if (m_iCurrCurve >= 0 && 
+	if (m_iCurrCurve >= 0 &&
 		iCurveType >= 0 && iCurveType < CURVE_TYPE_COUNT) {
 		m_pcrvvCurves[m_iCurrCurve]->setEvaluator(m_ppceCurveEvaluators[iCurveType]);
 		m_ivCurveTypes[m_iCurrCurve] = iCurveType;
@@ -206,18 +206,18 @@ void GraphWidget::draw()
 
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	glColor3d(0,0,0);
+	glColor3d(0, 0, 0);
 	glBegin(GL_POLYGON);
-		glVertex2d( -w(), -h()  );
-		glVertex2d( -w(),  h()  );
-		glVertex2d(  w(),  h()  );
-		glVertex2d(  w(), -h()  );
+	glVertex2d(-w(), -h());
+	glVertex2d(-w(), h());
+	glVertex2d(w(), h());
+	glVertex2d(w(), -h());
 	glEnd();
 
-/************************************************************************************/
+	/************************************************************************************/
 
-	//The grid.. We're copying this from rulerwindow class.
-	//Really to two should have a single reference function.
+		//The grid.. We're copying this from rulerwindow class.
+		//Really to two should have a single reference function.
 	double dRangeX = rightTime() - leftTime();
 	double dRangeY = (rightTime() - leftTime());
 	int iWindowWidth = w();
@@ -243,94 +243,94 @@ void GraphWidget::draw()
 		int iStartX = (int)ceil(leftTime() / dLongMarkLengthX);
 
 		int iMarkX, iMarkY;
-		double x,y;
+		double x, y;
 
-		glColor3d(1,1,1);
+		glColor3d(1, 1, 1);
 		glPointSize(0.5);
 		glBegin(GL_POINTS);
 
+		do {
+			iMarkX = 2 * (int)(((double)iStartX * dLongMarkLengthX - leftTime()) / dRangeX * (double)iWindowWidth + 0.5) - w();
+			x = (double)iMarkX / w();
+
+			int iStartY = (int)ceil(leftTime() / dLongMarkLengthY);
 			do {
-				iMarkX = 2*(int)(((double)iStartX * dLongMarkLengthX - leftTime()) / dRangeX * (double)iWindowWidth + 0.5) - w();
-				x = (double)iMarkX / w();
-				
-				int iStartY = (int)ceil(leftTime() / dLongMarkLengthY);
-				do{
-					iMarkY = 2*(int)(((double)iStartY * dLongMarkLengthY - leftTime()) / dRangeY * (double)iWindowHeight + 0.5) - h();
-					y = (double)iMarkY / h();
+				iMarkY = 2 * (int)(((double)iStartY * dLongMarkLengthY - leftTime()) / dRangeY * (double)iWindowHeight + 0.5) - h();
+				y = (double)iMarkY / h();
 
-					glVertex2d(x,y);
+				glVertex2d(x, y);
 
-					++iStartY;
-				} while (iMarkY < iWindowHeight);
-				
-				++iStartX;
-			} while (iMarkX < iWindowWidth);
+				++iStartY;
+			} while (iMarkY < iWindowHeight);
+
+			++iStartX;
+		} while (iMarkX < iWindowWidth);
 		glEnd();
 	}
 
-/************************************************************************************/
-	
+	/************************************************************************************/
+
 	if (m_bHasEvent) {
 		m_bHasEvent = false;
 
 		switch (m_iEventToDo) {
-			case LEFT_MOUSE_DOWN:
-				selectAddCtrlPt(m_iMouseX, m_iMouseY);
-				break;
-			case LEFT_MOUSE_DRAG:
-				dragCtrlPt(m_iMouseX, m_iMouseY);
-				break;
-			case LEFT_MOUSE_UP:
-				break;
+		case LEFT_MOUSE_DOWN:
+			selectAddCtrlPt(m_iMouseX, m_iMouseY);
+			break;
+		case LEFT_MOUSE_DRAG:
+			dragCtrlPt(m_iMouseX, m_iMouseY);
+			break;
+		case LEFT_MOUSE_UP:
+			break;
 
-			case ALT_LEFT_DOWN:
-				startCtrlPtSelection(m_iMouseX, m_iMouseY);
-				break;
-			case ALT_LEFT_DRAG:
-				doCtrlPtSelection(m_iMouseX, m_iMouseY);
-				break;
-			case ALT_LEFT_UP:
-				endCtrlPtSelection(m_iMouseX, m_iMouseY);
-				break;
+		case ALT_LEFT_DOWN:
+			startCtrlPtSelection(m_iMouseX, m_iMouseY);
+			break;
+		case ALT_LEFT_DRAG:
+			doCtrlPtSelection(m_iMouseX, m_iMouseY);
+			break;
+		case ALT_LEFT_UP:
+			endCtrlPtSelection(m_iMouseX, m_iMouseY);
+			break;
 
-			case CTRL_LEFT_DOWN:
-				selectCurrCurve(m_iMouseX, m_iMouseY);
-				break;
+		case CTRL_LEFT_DOWN:
+			selectCurrCurve(m_iMouseX, m_iMouseY);
+			break;
 
-			case SHIFT_LEFT_DOWN:
-				removeCtrlPt(m_iMouseX, m_iMouseY);
-				break;
+		case SHIFT_LEFT_DOWN:
+			removeCtrlPt(m_iMouseX, m_iMouseY);
+			break;
 
-			case RIGHT_MOUSE_DOWN:
-				break;
-			case RIGHT_MOUSE_DRAG:
-				doZoom(m_iMouseDX, m_iMouseDY);
-				break;
-			case RIGHT_MOUSE_UP:
-				break;
+		case RIGHT_MOUSE_DOWN:
+			break;
+		case RIGHT_MOUSE_DRAG:
+			doZoom(m_iMouseDX, m_iMouseDY);
+			break;
+		case RIGHT_MOUSE_UP:
+			break;
 
-			case SHIFT_RIGHT_DOWN:
-				break;
-			case SHIFT_RIGHT_DRAG:
-				m_bPanning = true;
-				doPan(m_iMouseDX, m_iMouseDY);
-				break;
-			case SHIFT_RIGHT_UP:
-				m_bPanning = false;
-				break;
+		case SHIFT_RIGHT_DOWN:
+			break;
+		case SHIFT_RIGHT_DRAG:
+			m_bPanning = true;
+			doPan(m_iMouseDX, m_iMouseDY);
+			break;
+		case SHIFT_RIGHT_UP:
+			m_bPanning = false;
+			break;
 
-			case CTRL_RIGHT_DOWN:
-				startZoomSelection(m_iMouseX, m_iMouseY);
-				break;
-			case CTRL_RIGHT_DRAG:
-				doZoomSelection(m_iMouseX, m_iMouseY);
-				break;
-			case CTRL_RIGHT_UP:
-				endZoomSelection(m_iMouseX, m_iMouseY);
-				break;
+		case CTRL_RIGHT_DOWN:
+			startZoomSelection(m_iMouseX, m_iMouseY);
+			break;
+		case CTRL_RIGHT_DRAG:
+			doZoomSelection(m_iMouseX, m_iMouseY);
+			break;
+		case CTRL_RIGHT_UP:
+			endZoomSelection(m_iMouseX, m_iMouseY);
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 
 		do_callback();
@@ -343,114 +343,175 @@ void GraphWidget::draw()
 
 int GraphWidget::handle(int event)
 {
-	switch (event) {
-	case FL_PUSH:
-		m_iMouseX = Fl::event_x();
-		m_iMouseY = Fl::event_y();
-		switch (Fl::event_button()) {
-		case LEFT:
-			if (!m_bLButtonDown) {
-				if (Fl::event_state(FL_SHIFT))
-					m_iEventToDo = SHIFT_LEFT_DOWN;
-				else if (Fl::event_state(FL_CTRL))
-					m_iEventToDo = CTRL_LEFT_DOWN;
-				else if (Fl::event_state(FL_ALT))
-					m_iEventToDo = ALT_LEFT_DOWN;
-				else
-					m_iEventToDo = LEFT_MOUSE_DOWN;
-				m_bLButtonDown = true;
-				m_bHasEvent = true;
+	if (!m_bhasInner)
+	{
+		switch (event) {
+		case FL_PUSH:
+			m_iMouseX = Fl::event_x();
+			m_iMouseY = Fl::event_y();
+			switch (Fl::event_button()) {
+			case LEFT:
+				if (!m_bLButtonDown) {
+					if (Fl::event_state(FL_SHIFT))
+						m_iEventToDo = SHIFT_LEFT_DOWN;
+					else if (Fl::event_state(FL_CTRL))
+						m_iEventToDo = CTRL_LEFT_DOWN;
+					else if (Fl::event_state(FL_ALT))
+						m_iEventToDo = ALT_LEFT_DOWN;
+					else
+						m_iEventToDo = LEFT_MOUSE_DOWN;
+					m_bLButtonDown = true;
+					m_bHasEvent = true;
+				}
+				break;
+			case RIGHT:
+				if (!m_bRButtonDown) {
+					if (Fl::event_state(FL_SHIFT))
+						m_iEventToDo = SHIFT_RIGHT_DOWN;
+					else if (Fl::event_state(FL_CTRL))
+						m_iEventToDo = CTRL_RIGHT_DOWN;
+					else
+						m_iEventToDo = RIGHT_MOUSE_DOWN;
+					m_bRButtonDown = true;
+					m_bHasEvent = true;
+				}
+				break;
 			}
+
+			if (m_bHasEvent)
+				redraw();
 			break;
-		case RIGHT:
-			if (!m_bRButtonDown) {
-				if (Fl::event_state(FL_SHIFT))
-					m_iEventToDo = SHIFT_RIGHT_DOWN;
-				else if (Fl::event_state(FL_CTRL))
-					m_iEventToDo = CTRL_RIGHT_DOWN;
-				else
-					m_iEventToDo = RIGHT_MOUSE_DOWN;
-				m_bRButtonDown = true;
-				m_bHasEvent = true;
-			}
-			break;
-		}
 
-		if (m_bHasEvent)
-			redraw();
-		break;
+		case FL_DRAG:
+			m_iMouseDX = Fl::event_x() - m_iMouseX;
+			m_iMouseDY = Fl::event_y() - m_iMouseY;
+			m_iMouseX = Fl::event_x();
+			m_iMouseY = Fl::event_y();
 
-	case FL_DRAG:
-		m_iMouseDX = Fl::event_x() - m_iMouseX;
-		m_iMouseDY = Fl::event_y() - m_iMouseY;
-		m_iMouseX = Fl::event_x();
-		m_iMouseY = Fl::event_y();
-
-		if (m_bLButtonDown) {
-			if (Fl::event_state(FL_SHIFT))
-				m_iEventToDo = SHIFT_LEFT_DRAG;
-			else if (Fl::event_state(FL_CTRL))
-				m_iEventToDo = CTRL_LEFT_DRAG;
-			else if (Fl::event_state(FL_ALT))
-				m_iEventToDo = ALT_LEFT_DRAG;
-			else 
-				m_iEventToDo = LEFT_MOUSE_DRAG;
-			m_bHasEvent = true;
-		}
-		else if (m_bRButtonDown) {
-			if (Fl::event_state(FL_SHIFT))
-				m_iEventToDo = SHIFT_RIGHT_DRAG;
-			else if (Fl::event_state(FL_CTRL))
-				m_iEventToDo = CTRL_RIGHT_DRAG;
-			else 
-				m_iEventToDo = RIGHT_MOUSE_DRAG;
-			m_bHasEvent = true;
-		}
-
-		if (m_bHasEvent) {
-			redraw();
-		}
-		break;
-
-	case FL_RELEASE:
-		m_iMouseX = Fl::event_x();
-		m_iMouseY = Fl::event_y();
-		switch (Fl::event_button()) {
-		case LEFT:
 			if (m_bLButtonDown) {
 				if (Fl::event_state(FL_SHIFT))
-					m_iEventToDo = SHIFT_LEFT_UP;
+					m_iEventToDo = SHIFT_LEFT_DRAG;
 				else if (Fl::event_state(FL_CTRL))
-					m_iEventToDo = CTRL_LEFT_UP;
+					m_iEventToDo = CTRL_LEFT_DRAG;
 				else if (Fl::event_state(FL_ALT))
-					m_iEventToDo = ALT_LEFT_UP;
+					m_iEventToDo = ALT_LEFT_DRAG;
 				else
-					m_iEventToDo = LEFT_MOUSE_UP;
-				m_bLButtonDown = false;
+					m_iEventToDo = LEFT_MOUSE_DRAG;
 				m_bHasEvent = true;
 			}
-			break;
-		case RIGHT:
-			if (m_bRButtonDown) {
+			else if (m_bRButtonDown) {
 				if (Fl::event_state(FL_SHIFT))
-					m_iEventToDo = SHIFT_RIGHT_UP;
+					m_iEventToDo = SHIFT_RIGHT_DRAG;
 				else if (Fl::event_state(FL_CTRL))
-					m_iEventToDo = CTRL_RIGHT_UP;
+					m_iEventToDo = CTRL_RIGHT_DRAG;
 				else
-					m_iEventToDo = RIGHT_MOUSE_UP;
-				m_bRButtonDown = false;
+					m_iEventToDo = RIGHT_MOUSE_DRAG;
 				m_bHasEvent = true;
 			}
+
+			if (m_bHasEvent) {
+				redraw();
+			}
 			break;
-		}
 
-		if (m_bHasEvent) {
-			redraw();
-		}
-		break;
+		case FL_RELEASE:
+			m_iMouseX = Fl::event_x();
+			m_iMouseY = Fl::event_y();
+			switch (Fl::event_button()) {
+			case LEFT:
+				if (m_bLButtonDown) {
+					if (Fl::event_state(FL_SHIFT))
+						m_iEventToDo = SHIFT_LEFT_UP;
+					else if (Fl::event_state(FL_CTRL))
+						m_iEventToDo = CTRL_LEFT_UP;
+					else if (Fl::event_state(FL_ALT))
+						m_iEventToDo = ALT_LEFT_UP;
+					else
+						m_iEventToDo = LEFT_MOUSE_UP;
+					m_bLButtonDown = false;
+					m_bHasEvent = true;
+				}
+				break;
+			case RIGHT:
+				if (m_bRButtonDown) {
+					if (Fl::event_state(FL_SHIFT))
+						m_iEventToDo = SHIFT_RIGHT_UP;
+					else if (Fl::event_state(FL_CTRL))
+						m_iEventToDo = CTRL_RIGHT_UP;
+					else
+						m_iEventToDo = RIGHT_MOUSE_UP;
+					m_bRButtonDown = false;
+					m_bHasEvent = true;
+				}
+				break;
+			}
 
-	default:
-		return Fl_Gl_Window::handle(event);
+			if (m_bHasEvent) {
+				redraw();
+			}
+			break;
+
+		default:
+			return Fl_Gl_Window::handle(event);
+		}
+	}
+	else
+	{
+		switch (event) {
+		case FL_PUSH:
+			m_iMouseX = Fl::event_x();
+			m_iMouseY = Fl::event_y();
+			switch (Fl::event_button()) {
+			case LEFT:
+				if (!m_bLButtonDown) {
+					m_iEventToDo = LEFT_MOUSE_DOWN;
+					m_bLButtonDown = true;
+					m_bHasEvent = true;
+				}
+				break;
+			}
+
+			if (m_bHasEvent)
+				redraw();
+			break;
+
+		case FL_DRAG:
+			m_iMouseDX = Fl::event_x() - m_iMouseX;
+			m_iMouseDY = Fl::event_y() - m_iMouseY;
+			m_iMouseX = Fl::event_x();
+			m_iMouseY = Fl::event_y();
+
+			if (m_bLButtonDown) {
+				m_iEventToDo = LEFT_MOUSE_DRAG;
+				m_bHasEvent = true;
+			}
+
+			if (m_bHasEvent) {
+				redraw();
+			}
+			break;
+
+		case FL_RELEASE:
+			m_iMouseX = Fl::event_x();
+			m_iMouseY = Fl::event_y();
+			switch (Fl::event_button()) {
+			case LEFT:
+				if (m_bLButtonDown) {
+					m_iEventToDo = LEFT_MOUSE_UP;
+					m_bLButtonDown = false;
+					m_bHasEvent = true;
+				}
+				break;
+			}
+
+			if (m_bHasEvent) {
+				redraw();
+			}
+			break;
+
+		default:
+			return Fl_Gl_Window::handle(event);
+		}
 	}
 
 	return 1;
@@ -459,7 +520,7 @@ int GraphWidget::handle(int event)
 float GraphWidget::topValue() const
 {
 	if (m_iCurrCurve >= 0) {
-		return m_rectCurrViewport.top() * m_cdvCurveDomains[m_iCurrCurve].mag() + 
+		return m_rectCurrViewport.top() * m_cdvCurveDomains[m_iCurrCurve].mag() +
 			m_cdvCurveDomains[m_iCurrCurve].minimum();
 	}
 	else {
@@ -470,7 +531,7 @@ float GraphWidget::topValue() const
 float GraphWidget::bottomValue() const
 {
 	if (m_iCurrCurve >= 0) {
-		return m_rectCurrViewport.bottom() * m_cdvCurveDomains[m_iCurrCurve].mag() + 
+		return m_rectCurrViewport.bottom() * m_cdvCurveDomains[m_iCurrCurve].mag() +
 			m_cdvCurveDomains[m_iCurrCurve].minimum();
 	}
 	else {
@@ -482,7 +543,7 @@ float GraphWidget::leftTime() const
 {
 	return m_fEndTime * m_rectCurrViewport.left();
 }
-	
+
 float GraphWidget::rightTime() const
 {
 	return m_fEndTime * m_rectCurrViewport.right();
@@ -552,59 +613,87 @@ void GraphWidget::selectAddCtrlPt(const int iMouseX, const int iMouseY)
 		Point ptCtrlPt;
 		m_ptDragStart = ptMouse;
 
-		// find the closest control point
 		Point ptMouseInCurveCoord = windowToCurve(m_iCurrCurve, ptMouse);
-		int iClosestCtrlPt = m_pcrvvCurves[m_iCurrCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptCtrlPt);
+		
 
-		Point ptCtrlPtInWindowCoord = curveToWindow(m_iCurrCurve, ptCtrlPt);
+		if (m_pcrvvCurves[m_iCurrCurve]->isInnerControlMode())
+		{
+			int  iClosestInnerControlPt=m_pcrvvCurves[m_iCurrCurve]->getClosestInnerControlPoint(ptMouseInCurveCoord, ptCtrlPt);
+			Point ptCtrlPtInWindowCoord = curveToWindow(m_iCurrCurve, ptCtrlPt);
+		
+			if (fabs(ptCtrlPtInWindowCoord.x - ptMouse.x) * 2 <= PICK_WINDOW_SIZE &&
+				fabs(ptCtrlPtInWindowCoord.y - ptMouse.y) * 2 <= PICK_WINDOW_SIZE) {
 
-		if (fabs(ptCtrlPtInWindowCoord.x - ptMouse.x) * 2 <= PICK_WINDOW_SIZE &&
-			fabs(ptCtrlPtInWindowCoord.y - ptMouse.y) * 2 <= PICK_WINDOW_SIZE) {
-
-			if (std::find(m_ivvCurrCtrlPts[m_iCurrCurve].begin(), 
-				m_ivvCurrCtrlPts[m_iCurrCurve].end(), 
-				iClosestCtrlPt) != m_ivvCurrCtrlPts[m_iCurrCurve].end()) {
-				// the point is one of the currently selected points. do nothing
-				return;
+				if (iClosestInnerControlPt== m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->current_inner_control_point) {
+					// the point is one of the currently selected points. do nothing
+					return;
+				}
+				else {
+					m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->current_inner_control_point = iClosestInnerControlPt;
+					return;
+				}
 			}
-			else {
-				deselectCtrlPts();
-				// select the control point
-				m_ivvCurrCtrlPts[m_iCurrCurve].push_back(iClosestCtrlPt);
-				return;
-			}
+
 		}
+		else
+		{
 
-		// no control point is near the mouse cursor
+			int iClosestCtrlPt = m_pcrvvCurves[m_iCurrCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptCtrlPt);
+			// find the closest control point
 
-		// see if it's a currently selected control point 
-		for (int i = 0; i < m_ivActiveCurves.size(); ++i) {
-			int iCurve = m_ivActiveCurves[i];
-
-			Point ptMouseInCurveCoord = windowToCurve(iCurve, ptMouse);
-			int iClosestCtrlPt = m_pcrvvCurves[iCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptCtrlPt);
-
-			Point ptCtrlPtInWindowCoord = curveToWindow(iCurve, ptCtrlPt);
+			Point ptCtrlPtInWindowCoord = curveToWindow(m_iCurrCurve, ptCtrlPt);
 
 			if (fabs(ptCtrlPtInWindowCoord.x - ptMouse.x) * 2 <= PICK_WINDOW_SIZE &&
 				fabs(ptCtrlPtInWindowCoord.y - ptMouse.y) * 2 <= PICK_WINDOW_SIZE) {
 
-				if (std::find(m_ivvCurrCtrlPts[iCurve].begin(), 
-					m_ivvCurrCtrlPts[iCurve].end(), 
-					iClosestCtrlPt) != m_ivvCurrCtrlPts[iCurve].end()) {
+				if (std::find(m_ivvCurrCtrlPts[m_iCurrCurve].begin(),
+					m_ivvCurrCtrlPts[m_iCurrCurve].end(),
+					iClosestCtrlPt) != m_ivvCurrCtrlPts[m_iCurrCurve].end()) {
 					// the point is one of the currently selected points. do nothing
 					return;
 				}
+				else {
+					deselectCtrlPts();
+					// select the control point
+					m_ivvCurrCtrlPts[m_iCurrCurve].push_back(iClosestCtrlPt);
+					return;
+				}
 			}
+
+			// no control point is near the mouse cursor
+
+			// see if it's a currently selected control point 
+			for (int i = 0; i < m_ivActiveCurves.size(); ++i) {
+				int iCurve = m_ivActiveCurves[i];
+
+				Point ptMouseInCurveCoord = windowToCurve(iCurve, ptMouse);
+				int iClosestCtrlPt = m_pcrvvCurves[iCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptCtrlPt);
+
+				Point ptCtrlPtInWindowCoord = curveToWindow(iCurve, ptCtrlPt);
+
+				if (fabs(ptCtrlPtInWindowCoord.x - ptMouse.x) * 2 <= PICK_WINDOW_SIZE &&
+					fabs(ptCtrlPtInWindowCoord.y - ptMouse.y) * 2 <= PICK_WINDOW_SIZE) {
+
+					if (std::find(m_ivvCurrCtrlPts[iCurve].begin(),
+						m_ivvCurrCtrlPts[iCurve].end(),
+						iClosestCtrlPt) != m_ivvCurrCtrlPts[iCurve].end()) {
+						// the point is one of the currently selected points. do nothing
+						return;
+					}
+				}
+			}
+
+			// add a new control point to the current curve
+			m_pcrvvCurves[m_iCurrCurve]->addControlPoint(ptMouseInCurveCoord);
+			Point ptDummy;
+			deselectCtrlPts();
+			m_ivvCurrCtrlPts[m_iCurrCurve].push_back(
+				m_pcrvvCurves[m_iCurrCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptDummy));
 		}
 
-		// add a new control point to the current curve
-		m_pcrvvCurves[m_iCurrCurve]->addControlPoint(ptMouseInCurveCoord);
-		Point ptDummy;
-		deselectCtrlPts();
-		m_ivvCurrCtrlPts[m_iCurrCurve].push_back(
-			m_pcrvvCurves[m_iCurrCurve]->getClosestControlPoint(ptMouseInCurveCoord, ptDummy));
+
 	}
+
 }
 
 void GraphWidget::removeCtrlPt(const int iMouseX, const int iMouseY)
@@ -630,21 +719,35 @@ void GraphWidget::dragCtrlPt(const int iMouseX, const int iMouseY)
 {
 	if (m_ivActiveCurves.size() > 0) {
 		Point ptMouse(iMouseX, iMouseY);
-		ptMouse.x = max(0.0f, ptMouse.x); 
+		ptMouse.x = max(0.0f, ptMouse.x);
 		ptMouse.x = min((float)(w() - 1), ptMouse.x);
-		ptMouse.y = max(0.0f, ptMouse.y); 
+		ptMouse.y = max(0.0f, ptMouse.y);
 		ptMouse.y = min((float)(h() - 1), ptMouse.y);
-		for (int i = 0; i < m_ivActiveCurves.size(); ++i) {
-			int iCurve = m_ivActiveCurves[i];
-
-			Point ptMouseInCurveCoord = windowToCurve(iCurve, ptMouse);
-			Point ptDragStartInCurveCoord = windowToCurve(iCurve, m_ptDragStart);
+		if(m_pcrvvCurves[m_iCurrCurve]->isInnerControlMode())
+		{ 
+			Point ptMouseInCurveCoord = windowToCurve(m_iCurrCurve, ptMouse);
+			Point ptDragStartInCurveCoord = windowToCurve(m_iCurrCurve, m_ptDragStart);
 			Point ptOffset(ptMouseInCurveCoord.x - ptDragStartInCurveCoord.x,
 
-			ptMouseInCurveCoord.y - ptDragStartInCurveCoord.y);
+				ptMouseInCurveCoord.y - ptDragStartInCurveCoord.y);
 
-			m_pcrvvCurves[iCurve]->moveControlPoints(m_ivvCurrCtrlPts[iCurve], ptOffset,
-				m_cdvCurveDomains[iCurve].minimum(), m_cdvCurveDomains[iCurve].maximum());
+			m_pcrvvCurves[m_iCurrCurve]->moveInnerControlPoints(ptOffset,
+				m_cdvCurveDomains[m_iCurrCurve].minimum(), m_cdvCurveDomains[m_iCurrCurve].maximum());
+		}
+		else
+		{
+			for (int i = 0; i < m_ivActiveCurves.size(); ++i) {
+				int iCurve = m_ivActiveCurves[i];
+
+				Point ptMouseInCurveCoord = windowToCurve(iCurve, ptMouse);
+				Point ptDragStartInCurveCoord = windowToCurve(iCurve, m_ptDragStart);
+				Point ptOffset(ptMouseInCurveCoord.x - ptDragStartInCurveCoord.x,
+
+					ptMouseInCurveCoord.y - ptDragStartInCurveCoord.y);
+
+				m_pcrvvCurves[iCurve]->moveControlPoints(m_ivvCurrCtrlPts[iCurve], ptOffset,
+					m_cdvCurveDomains[iCurve].minimum(), m_cdvCurveDomains[iCurve].maximum());
+			}
 		}
 
 		m_ptDragStart = ptMouse;
@@ -770,7 +873,7 @@ void GraphWidget::endCtrlPtSelection(const int iMouseX, const int iMouseY)
 					m_pcrvvCurves[iCurve]->getControlPoint(iCtrlPt, ptCtrlPt);
 					ptCtrlPtWndCoord = curveToWindow(iCurve, ptCtrlPt);
 
-					if (ptCtrlPtWndCoord.x >= m_rectSelectionRect.left() && 
+					if (ptCtrlPtWndCoord.x >= m_rectSelectionRect.left() &&
 						ptCtrlPtWndCoord.x <= m_rectSelectionRect.right() &&
 						ptCtrlPtWndCoord.y <= m_rectSelectionRect.top() &&
 						ptCtrlPtWndCoord.y >= m_rectSelectionRect.bottom()) {
@@ -812,7 +915,7 @@ void GraphWidget::activateCurve(int iCurve, bool bActive)
 			// curve is hidden
 			deselectCtrlPts();
 
-			if (iCurve == m_iCurrCurve) 
+			if (iCurve == m_iCurrCurve)
 				m_iCurrCurve = -1;
 		}
 
@@ -832,7 +935,7 @@ void GraphWidget::activateCurve(int iCurve, bool bActive)
 		if (m_ivActiveCurves.size() == 1) {
 			m_iCurrCurve = m_ivActiveCurves[0];
 		}
-		else 
+		else
 			m_iCurrCurve = -1;
 	}
 }
@@ -868,7 +971,7 @@ void GraphWidget::setTension(float tension)
 {
 	if (m_iCurrCurve >= 0) {
 		m_pcrvvCurves[m_iCurrCurve]->setDirtyTrue();
-		m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension=tension;
+		m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension = tension;
 	}
 }
 
@@ -921,8 +1024,8 @@ void GraphWidget::drawCurve(int iCurve, int iColor) const
 	glPushMatrix();
 	glLoadIdentity();
 	gluOrtho2D(
-		m_fEndTime * m_rectCurrViewport.left(), 
-		m_fEndTime * m_rectCurrViewport.right(), 
+		m_fEndTime * m_rectCurrViewport.left(),
+		m_fEndTime * m_rectCurrViewport.right(),
 		m_rectCurrViewport.bottom() * m_cdvCurveDomains[iCurve].mag() + m_cdvCurveDomains[iCurve].minimum(),
 		m_rectCurrViewport.top() * m_cdvCurveDomains[iCurve].mag() + m_cdvCurveDomains[iCurve].minimum());
 
@@ -941,6 +1044,7 @@ void GraphWidget::drawCurve(int iCurve, int iColor) const
 		glLineWidth(1.0);
 	//std::cout << m_ppceCurveEvaluators[CURVE_TYPE_CATMULLROM]->tension << std::endl;
 	m_pcrvvCurves[iCurve]->drawControlPoints();
+	m_pcrvvCurves[iCurve]->drawInnerControlPoint();
 
 	glColor3f(1.0f, 1.0f, 1.0f); // white
 	for (int i = 0; i < m_ivvCurrCtrlPts[iCurve].size(); ++i) {
@@ -962,10 +1066,10 @@ void GraphWidget::drawSelectionRect() const
 		glColor3d(1.0, 0.0, 0.0);
 
 		glBegin(GL_LINE_LOOP);
-			glVertex2f(m_rectSelectionRect.left(), h() - m_rectSelectionRect.bottom());
-			glVertex2f(m_rectSelectionRect.left(), h() - m_rectSelectionRect.top());
-			glVertex2f(m_rectSelectionRect.right(), h() - m_rectSelectionRect.top());
-			glVertex2f(m_rectSelectionRect.right(), h() - m_rectSelectionRect.bottom());
+		glVertex2f(m_rectSelectionRect.left(), h() - m_rectSelectionRect.bottom());
+		glVertex2f(m_rectSelectionRect.left(), h() - m_rectSelectionRect.top());
+		glVertex2f(m_rectSelectionRect.right(), h() - m_rectSelectionRect.top());
+		glVertex2f(m_rectSelectionRect.right(), h() - m_rectSelectionRect.bottom());
 		glEnd();
 
 		glPopMatrix();
@@ -984,18 +1088,18 @@ void GraphWidget::drawZoomSelectionMap() const
 
 		glColor3d(0.0, 1.0, 0.0);
 		glBegin(GL_LINE_LOOP);
-			glVertex2f(0.0f, 0.0f);
-			glVertex2f(1.0f, 0.0f);
-			glVertex2f(1.0f, 1.0f);
-			glVertex2f(0.0f, 1.0f);
+		glVertex2f(0.0f, 0.0f);
+		glVertex2f(1.0f, 0.0f);
+		glVertex2f(1.0f, 1.0f);
+		glVertex2f(0.0f, 1.0f);
 		glEnd();
 
 		glColor3d(1.0, 0.0, 0.0);
 		glBegin(GL_LINE_LOOP);
-			glVertex2f(m_rectCurrViewport.left(), m_rectCurrViewport.top());
-			glVertex2f(m_rectCurrViewport.right(), m_rectCurrViewport.top());
-			glVertex2f(m_rectCurrViewport.right(), m_rectCurrViewport.bottom());
-			glVertex2f(m_rectCurrViewport.left(), m_rectCurrViewport.bottom());
+		glVertex2f(m_rectCurrViewport.left(), m_rectCurrViewport.top());
+		glVertex2f(m_rectCurrViewport.right(), m_rectCurrViewport.top());
+		glVertex2f(m_rectCurrViewport.right(), m_rectCurrViewport.bottom());
+		glVertex2f(m_rectCurrViewport.left(), m_rectCurrViewport.bottom());
 		glEnd();
 
 		glPopMatrix();
@@ -1016,8 +1120,8 @@ void GraphWidget::drawTimeBar() const
 	glLineWidth(2.0);
 
 	glBegin(GL_LINES);
-		glVertex2f(m_fCurrTime / m_fEndTime, 0.0);
-		glVertex2f(m_fCurrTime / m_fEndTime, 1.0);
+	glVertex2f(m_fCurrTime / m_fEndTime, 0.0);
+	glVertex2f(m_fCurrTime / m_fEndTime, 1.0);
 	glEnd();
 
 	glLineWidth(1.0);
@@ -1034,15 +1138,15 @@ Point GraphWidget::curveToWindow(int iCurve, const Point& ptCurve) const
 
 	Point ptWindow;
 
-	ptWindow.x = (ptCurve.x - m_rectCurrViewport.left() * m_fEndTime) / 
-		(m_rectCurrViewport.width() * m_fEndTime) * 
+	ptWindow.x = (ptCurve.x - m_rectCurrViewport.left() * m_fEndTime) /
+		(m_rectCurrViewport.width() * m_fEndTime) *
 		(float)w();
 
-	float fNormalizedCurveY = (ptCurve.y - m_cdvCurveDomains[iCurve].minimum()) / 
+	float fNormalizedCurveY = (ptCurve.y - m_cdvCurveDomains[iCurve].minimum()) /
 		m_cdvCurveDomains[iCurve].mag();
-	ptWindow.y = (float)h() - 
-		(fNormalizedCurveY - m_rectCurrViewport.bottom()) / 
-		m_rectCurrViewport.height() * 
+	ptWindow.y = (float)h() -
+		(fNormalizedCurveY - m_rectCurrViewport.bottom()) /
+		m_rectCurrViewport.height() *
 		(float)h();
 
 	return ptWindow;
@@ -1058,7 +1162,7 @@ Point GraphWidget::windowToCurve(int iCurve, const Point& ptWindow) const
 
 	ptCurve.x = (ptWindow.x / (float)w() * m_rectCurrViewport.width() + m_rectCurrViewport.left()) * m_fEndTime;
 
-	ptCurve.y = (((float)h() - ptWindow.y) / (float)h() * m_rectCurrViewport.height() + m_rectCurrViewport.bottom()) * 
+	ptCurve.y = (((float)h() - ptWindow.y) / (float)h() * m_rectCurrViewport.height() + m_rectCurrViewport.bottom()) *
 		m_cdvCurveDomains[iCurve].mag() + m_cdvCurveDomains[iCurve].minimum();
 
 	return ptCurve;
@@ -1120,7 +1224,7 @@ bool GraphWidget::loadScript(const char* szFileName)
 	return false;
 }
 
-Point GraphWidget::windowToGrid( Point p ) {
+Point GraphWidget::windowToGrid(Point p) {
 
 	double dRange = rightTime() - leftTime();
 	int iWindowWidth = w();
@@ -1129,7 +1233,7 @@ Point GraphWidget::windowToGrid( Point p ) {
 
 	int iLongMarkCountX = iWindowWidth / k_iAvgLongMarkLen;
 	int iLongMarkCountY = iWindowHeight / k_iAvgLongMarkLen;
-	int iMarkX=0, iMarkY=0;
+	int iMarkX = 0, iMarkY = 0;
 
 	if (iLongMarkCountX > 0 && iWindowWidth > 0) {
 		// Computer the long mark length so that it's 10^i where i is an integer
@@ -1138,14 +1242,14 @@ Point GraphWidget::windowToGrid( Point p ) {
 		int iLongMarkLengthPowX = (int)ceil(dLongMarkLengthPowX);
 		dLongMarkLengthX = pow(10.0, (double)iLongMarkLengthPowX);
 
-		iMarkX = ((int)(((p.x-.5) / ((double)iWindowWidth) ) * dRange ) - leftTime())/dLongMarkLengthX;
+		iMarkX = ((int)(((p.x - .5) / ((double)iWindowWidth)) * dRange) - leftTime()) / dLongMarkLengthX;
 
 		double dLongMarkLengthY = dRange / (double)iLongMarkCountY;
 		double dLongMarkLengthPowY = log10(dLongMarkLengthY);
 		int iLongMarkLengthPowY = (int)ceil(dLongMarkLengthPowY);
 		dLongMarkLengthY = pow(10.0, (double)iLongMarkLengthPowY);
 
-		iMarkY = ((int)(((p.y-.5) / ((double)iWindowHeight) ) * dRange ) - leftTime())/dLongMarkLengthY;
+		iMarkY = ((int)(((p.y - .5) / ((double)iWindowHeight)) * dRange) - leftTime()) / dLongMarkLengthY;
 
 	}
 
@@ -1154,7 +1258,7 @@ Point GraphWidget::windowToGrid( Point p ) {
 	return p;
 }
 
-Point GraphWidget::gridToWindow( Point p ) {
+Point GraphWidget::gridToWindow(Point p) {
 
 	int iWindowWidth = w();
 	int iWindowHeight = h();

@@ -20,11 +20,6 @@ void BezierCurveEvaluator::evaluateCurve(const std::vector<Point>& ptvCtrlPts,
 	ptvEvaluatedCurvePts.clear();
 
 	if (bWrap) {
-		// if wrapping is on, interpolate the y value at xmin and
-		// xmax so that the slopes of the lines adjacent to the
-		// wraparound are equal.
-
-
 		int spliteCurveCount = iCtrlPtCount / 3;
 		int remainingCtrPoints = iCtrlPtCount % 3;
 
