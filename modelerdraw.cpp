@@ -3,7 +3,9 @@
 #include <GL/glu.h>
 #include <cstdio>
 #include "vec.h"
-
+#include <gl/glu.h>
+#include "bitmap.h"
+#include <FL/fl_ask.H>
 // ********************************************************
 // Support functions from previous version of modeler
 // ********************************************************
@@ -88,14 +90,14 @@ void setAmbientColor(float r, float g, float b)
         glMaterialfv( GL_FRONT_AND_BACK, GL_AMBIENT, mds->m_ambientColor);
 }
 
-void setDiffuseColor(float r, float g, float b)
+void setDiffuseColor(float r, float g, float b, float a)
 {
     ModelerDrawState *mds = ModelerDrawState::Instance();
     
     mds->m_diffuseColor[0] = (GLfloat)r;
     mds->m_diffuseColor[1] = (GLfloat)g;
     mds->m_diffuseColor[2] = (GLfloat)b;
-    mds->m_diffuseColor[3] = (GLfloat)1.0;
+    mds->m_diffuseColor[3] = (GLfloat)a;
     
     if (mds->m_drawMode == NORMAL)
         glMaterialfv( GL_FRONT_AND_BACK, GL_DIFFUSE, mds->m_diffuseColor);
@@ -296,6 +298,75 @@ void drawBox( double x, double y, double z )
 void drawTextureBox( double x, double y, double z )
 {
     // NOT IMPLEMENTED, SORRY (ehsu)
+
+    ModelerDrawState* mds = ModelerDrawState::Instance();
+
+    _setupOpenGl();
+
+    if (mds->m_rayFile)
+    {
+        _dump_current_modelview();
+        fprintf(mds->m_rayFile,
+            "scale(%f,%f,%f,translate(0.5,0.5,0.5,box {\n", x, y, z);
+        _dump_current_material();
+        fprintf(mds->m_rayFile, "})))\n");
+    }
+    else
+    {
+        /* remember which matrix mode OpenGL was in. */
+        int savemode;
+        glGetIntegerv(GL_MATRIX_MODE, &savemode);
+
+        /* switch to the model matrix and scale by x,y,z. */
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glScaled(x, y, z);
+
+        glBegin(GL_QUADS);
+
+        glNormal3d(0.0, 0.0, -1.0);
+        glTexCoord2f(0.0, 0.0); glVertex3d(0.0, 0.0, 0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3d(0.0, 1.0, 0.0);
+        glTexCoord2f(1.0, 1.0); glVertex3d(1.0, 1.0, 0.0);
+        glTexCoord2f(1.0, 0.0); glVertex3d(1.0, 0.0, 0.0);
+
+        glNormal3d(0.0, -1.0, 0.0);
+        glTexCoord2f(0.0, 0.0); glVertex3d(0.0, 0.0, 0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3d(1.0, 0.0, 0.0);
+        glTexCoord2f(1.0, 1.0); glVertex3d(1.0, 0.0, 1.0);
+        glTexCoord2f(1.0, 0.0); glVertex3d(0.0, 0.0, 1.0);
+
+        glNormal3d(-1.0, 0.0, 0.0);
+        glTexCoord2f(0.0, 0.0); glVertex3d(0.0, 0.0, 0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3d(0.0, 0.0, 1.0);
+        glTexCoord2f(1.0, 1.0); glVertex3d(0.0, 1.0, 1.0);
+        glTexCoord2f(1.0, 0.0); glVertex3d(0.0, 1.0, 0.0);
+
+        glNormal3d(0.0, 0.0, 1.0);
+        glTexCoord2f(0.0, 0.0); glVertex3d(0.0, 0.0, 1.0);
+        glTexCoord2f(0.0, 1.0); glVertex3d(1.0, 0.0, 1.0);
+        glTexCoord2f(1.0, 1.0); glVertex3d(1.0, 1.0, 1.0);
+        glTexCoord2f(1.0, 0.0); glVertex3d(0.0, 1.0, 1.0);
+
+        glNormal3d(0.0, 1.0, 0.0);
+        glTexCoord2f(0.0, 0.0); glVertex3d(0.0, 1.0, 0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3d(0.0, 1.0, 1.0);
+        glTexCoord2f(1.0, 1.0); glVertex3d(1.0, 1.0, 1.0);
+        glTexCoord2f(1.0, 0.0); glVertex3d(1.0, 1.0, 0.0);
+
+        glNormal3d(1.0, 0.0, 0.0);
+        glTexCoord2f(0.0, 0.0); glVertex3d(1.0, 0.0, 0.0);
+        glTexCoord2f(0.0, 1.0); glVertex3d(1.0, 1.0, 0.0);
+        glTexCoord2f(1.0, 1.0); glVertex3d(1.0, 1.0, 1.0);
+        glTexCoord2f(1.0, 0.0); glVertex3d(1.0, 0.0, 1.0);
+
+        glEnd();
+
+        /* restore the model matrix stack, and switch back to the matrix
+        mode we were in. */
+        glPopMatrix();
+        glMatrixMode(savemode);
+    }
 }
 
 void drawCylinder( double h, double r1, double r2 )
@@ -465,4 +536,99 @@ void drawHeightField(unsigned char* m_nHeight_field, int m_nHeight_field_width,
                 p4[0], p4[1], p4[2]);
         }
     }
+}
+
+void initTexture(unsigned char* im, int w, int h, bool alpha_flag)
+{
+    GLuint texture_id;
+
+    
+    /*unsigned char* im_scaled[512*512*4];
+    gluScaleImage(GL_RGB, w, h,
+        GL_UNSIGNED_BYTE, im, 512, 512,
+        GL_UNSIGNED_BYTE, im_scaled);*/
+        //delete[] im;
+        // enable textures
+    glEnable(GL_TEXTURE_2D);
+    glGenTextures(1, &texture_id);
+    glBindTexture(GL_TEXTURE_2D, texture_id);
+    // sample: specify texture parameters
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+    // set the active texture
+    // test
+    if (alpha_flag)
+    {
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, im);
+    }
+    else
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, w, h, 0, GL_RGB, GL_UNSIGNED_BYTE, im);
+    //delete[] im;
+    /*if(glGetError() != GL_NO_ERROR)
+        fl_alert("%d", glGetError());*/
+
+
+}
+
+
+void drawBillboard(Camera* eye)
+{
+    glBegin(GL_QUADS);
+
+    //Vec3f camera;
+    Vec3f camera = eye->getPosition();
+    Vec3f lookAt = eye->getLookAt();
+    Vec3f up = eye->getUp();
+    Vec3f normal = camera - lookAt;
+    normal.normalize();
+    Vec3f right = up ^ normal;
+    right.normalize();
+    up = normal ^ right;
+    up.normalize();
+    //Vec3f cur;
+    glNormal3d(normal[0], normal[1], normal[2]);
+
+    Vec3f p1 = up - right;
+    Vec3f p2 = -up - right;
+    Vec3f p3 = -up + right;
+    Vec3f p4 = up + right;
+    glTexCoord2f(0.0, 0.0); glVertex3d(p1[0], p1[1], p1[2]);
+    glTexCoord2f(0.0, 1.0); glVertex3d(p2[0], p2[1], p2[2]);
+    glTexCoord2f(1.0, 1.0); glVertex3d(p3[0], p3[1], p3[2]);
+    glTexCoord2f(1.0, 0.0); glVertex3d(p4[0], p4[1], p4[2]);
+
+    glEnd();
+}
+
+void drawBillboardFire(Camera* eye)
+{
+ 
+    glBegin(GL_QUADS);
+
+    //Vec3f camera;
+    Vec3f camera = eye->getPosition();
+    Vec3f lookAt = eye->getLookAt();
+    Vec3f up = eye->getUp();
+    Vec3f normal = camera - lookAt;
+    normal.normalize();
+    Vec3f right = up ^ normal;
+    right.normalize();
+    up = normal ^ right;
+    up.normalize();
+    //Vec3f cur;
+    glNormal3d(normal[0], normal[1], normal[2]);
+
+    Vec3f p1 = up - right;
+    Vec3f p2 = -up - right;
+    Vec3f p3 = -up + right;
+    Vec3f p4 = up + right;
+    glVertex3d(p1[0], p1[1], p1[2]);
+    glVertex3d(p2[0], p2[1], p2[2]);
+    glVertex3d(p3[0], p3[1], p3[2]);
+    glVertex3d(p4[0], p4[1], p4[2]);
+
+    glEnd();
 }

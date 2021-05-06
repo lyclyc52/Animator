@@ -7,7 +7,7 @@
 
 #include <FL/gl.h>
 #include <cstdio>
-
+#include "camera.h"
 
 enum DrawModeSetting_t 
 { NONE=0, NORMAL, WIREFRAME, FLATSHADE, };
@@ -56,7 +56,7 @@ private:
 
 // Set the current material properties
 void setAmbientColor(float r, float g, float b);
-void setDiffuseColor(float r, float g, float b);
+void setDiffuseColor(float r, float g, float b, float a = 1.0f);
 void setSpecularColor(float r, float g, float b);
 void setShininess(float s);
 
@@ -93,4 +93,8 @@ void drawTriangle( double x1, double y1, double z1,
 			       double x3, double y3, double z3 );
 void drawHeightField(unsigned char* m_nHeight_field, int m_nHeight_field_width,
 	int m_nHeight_field_height);
+void initTexture(unsigned char* im, int w, int h, bool alpha_flag = false);
+
+void drawBillboard(Camera* eye);
+void drawBillboardFire(Camera* eye);
 #endif

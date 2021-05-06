@@ -12,6 +12,7 @@
 #include "vec.h"
 #include "particleSystem.h"
 #include "modelerui.h"
+#include "camera.h"
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643383279502
 #endif
@@ -57,7 +58,7 @@ enum SampleModelControls
 
 	PARTICLE_CLOTH_POS_X, PARTICLE_CLOTH_POS_Y, PARTICLE_CLOTH_POS_Z,
 
-	FLOCKING, HEIGHT_FIELD,
+	FLOCKING, HEIGHT_FIELD, FIREWORKS, SNOW, FIRE,
 
 	NUMCONTROLS
 };
@@ -1156,12 +1157,29 @@ void RobotModel::draw()
 
 	ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
 	ps->flocking = VAL(FLOCKING);
+	ps->fireworks = VAL(FIREWORKS);
+	ps->fire = VAL(FIRE);
+	ps->snow = VAL(SNOW);
+	ps->camera = m_ctrl_camera;
 	// This call takes care of a lot of the nasty projection 
 	// matrix stuff.  Unless you want to fudge directly with the 
 	// projection matrix, don't bother with this ...
 	ModelerView::draw();
 	// save camera
 	Mat4f cameraM = getModelViewMatrix();
+
+	// draw billboard here
+	// should be same coord as world
+	/*{
+		setDiffuseColor(0, 0, 0);
+		glPushMatrix();
+		glTranslated(0, 6, 2);
+		initTexture("./samples/spark.bmp");
+		drawBillboard(m_curve_camera);
+
+		glDisable(GL_TEXTURE_2D);
+		glPopMatrix();
+	}*/
 
 	// set light source
 	GLfloat light_pos[] = { VAL(LIGHT_POS_X), VAL(LIGHT_POS_Y), VAL(LIGHT_POS_Z), 0 };
@@ -1176,6 +1194,18 @@ void RobotModel::draw()
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light_intensity);
 
 	if (VAL(FLOCKING))
+	{
+		// possibly do sth. here
+	}
+	else if (VAL(FIREWORKS))
+	{
+
+	}
+	else if (VAL(FIRE))
+	{
+
+	}
+	else if (VAL(SNOW))
 	{
 
 	}
@@ -1505,6 +1535,7 @@ void RobotModel::draw()
 			glPopMatrix();
 		}
 	}
+	
 	/*}
 	glPopMatrix();*/
 	endDraw();
@@ -1576,7 +1607,10 @@ int main()
 	controls[PARTICLE_CLOTH_POS_Z] = ModelerControl("cloth pos z", -10, 10, 0.5, -2);
 
 	controls[FLOCKING] = ModelerControl("Flocking", 0, 1, 1, 0);
+	controls[FIREWORKS] = ModelerControl("Fireworks", 0, 1, 1, 0);
 	controls[HEIGHT_FIELD] = ModelerControl("Height field", 0, 1, 1, 0);
+	controls[SNOW] = ModelerControl("Snow", 0, 1, 1, 0);
+	controls[FIRE] = ModelerControl("Fire", 0, 1, 1, 0);
 
 	ParticleSystem* ps = new ParticleSystem();
 	

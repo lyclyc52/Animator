@@ -9,8 +9,8 @@
 #include <math.h>
 #include <limits.h>
 #include <time.h>
-
-
+#include "bitmap.h"
+#include <FL/fl_ask.H>
 constexpr float eps = 0.0001f;
 /***************
  * Constructors
@@ -98,6 +98,41 @@ void ParticleSystem::resetSimulation(float t)
 			Vec3f initialV(0.1, 0, 0);
 			Vec3f initialP(0, 0, 0);
 			particles.push_back(ParticleSystem::Particle(mass, initialV + vBias, Vec3f{ 0, 0, 0 },
+				Vec3f{ 0, 0, 0 }, initialP + pBias));
+		}
+	}
+	else if (fireworks)
+	{
+		for (int i = 0; i < num_fireworks; i++)
+		{
+		
+			Vec3f pBias = getBias();
+			Vec3f vBias = getBias();
+			Vec3f initialV = getBias() * fireworksV;
+			Vec3f initialP(0, 0, 0);
+			particles.push_back(ParticleSystem::Particle(mass, initialV + vBias, Vec3f{ 0, 0, 0 },
+				Vec3f{ 0, 0, 0 }, initialP + pBias));
+		}
+	}
+	else if (snow)
+	{
+		for (int i = 0; i < num_snow; i++)
+		{
+			Vec3f pBias = getBias() * 8;
+			Vec3f initialP(0, 16, 0);
+			particles.push_back(ParticleSystem::Particle(mass, Vec3f{ 0, 0, 0 }, Vec3f{ 0, 0, 0 },
+				Vec3f{ 0, 0, 0 }, initialP + pBias));
+		}
+	}
+	else if (fire)
+	{
+		for (int i = 0; i < num_fire; i++)
+		{
+			Vec3f pBias = getBias() * 0.3;
+			pBias[1] = 0;
+			Vec3f initialP(0, 0, 0);
+			Vec3f initialV = Vec3f(0, 2, 0) + getBias();
+			particles.push_back(ParticleSystem::Particle(mass, initialV, Vec3f{ 0, 0, 0 },
 				Vec3f{ 0, 0, 0 }, initialP + pBias));
 		}
 	}
@@ -197,6 +232,105 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 			particles[i].p += dt * particles[i].v;
 		}
 
+	}
+	else if (fireworks)
+	{
+		for (int i = 0; i < particles.size(); i++)
+		{
+			float ageBias = getBias()[0] / 1.5f;
+			if (particles[i].age > 2)
+			{
+				Vec3f pBias = getBias();
+				Vec3f vBias = getBias();
+				Vec3f initialV = getBias() * fireworksV;
+				Vec3f initialP(0, 0, 0);
+				particles[i].age = 0;
+				particles[i].p = initialP + pBias;
+				particles[i].v = initialV + vBias;
+				particles[i].a = { 0, 0, 0 };
+			}
+			else
+			{
+				Vec3f g{ 0, -14, 0 };
+				// todo: recalculate another F
+				//particles[i].a = particles[i].F / particles[i].m;
+				Vec3f gBias = getBias() / 2.0f;
+				particles[i].a = g + gBias;
+				if (particles[i].v.length() > 3)
+				{
+					particles[i].v *= (1 - (particles[i].v.length() - 4) * 0.015);
+				}
+				particles[i].v += dt * particles[i].a;
+				particles[i].p += dt * particles[i].v;
+				particles[i].age += dt;
+			}
+
+		}
+		/*if (simulate)
+			baked_particles.push_back(particles);*/
+	}
+	else if (snow)
+	{
+		for (int i = 0; i < particles.size(); i++)
+		{
+			float ageBias = getBias()[0] / 1.5f;
+			if (particles[i].p[1] < -4)
+			{
+				Vec3f pBias = getBias() * 8;
+				Vec3f initialP(0, 16, 0);
+				particles[i].age = 0;
+				particles[i].p = initialP + pBias;
+				particles[i].v = { 0, 0, 0 };
+				particles[i].a = { 0, 0, 0 };
+			}
+			else
+			{
+				Vec3f g{ 0, -10, 0 };
+				Vec3f gBias = getBias() * 7;
+				gBias[1] = 0;
+				particles[i].a = g + gBias;
+				if (particles[i].v.length() > 1)
+				{
+					particles[i].v *= (1 - (particles[i].v.length() - 1) * 0.015);
+				}
+				particles[i].v += dt * particles[i].a;
+				particles[i].p += dt * particles[i].v;
+				particles[i].age += dt;
+			}
+
+		}
+	}
+	else if (fire)
+	{
+		for (int i = 0; i < particles.size(); i++)
+		{
+			float ageBias = getBias()[0] / 1.5f;
+			if (particles[i].age > 1 + ageBias)
+			{
+				Vec3f pBias = getBias() * 0.3;
+				pBias[1] = 0;
+				Vec3f initialP(0, 0, 0);
+				Vec3f initialV = Vec3f(0, 2, 0) + getBias();
+				particles[i].age = 0;
+				particles[i].p = initialP + pBias;
+				particles[i].v = initialV;
+				particles[i].a = { 0, 0, 0 };
+			}
+			else
+			{
+				Vec3f g{ 0, 3, 0 };
+				Vec3f gBias = getBias() * 2;
+				particles[i].a = g + gBias;
+				if (particles[i].v.length() > 1)
+				{
+					particles[i].v *= (1 - (particles[i].v.length() - 1) * 0.015);
+				}
+				particles[i].v += dt * particles[i].a;
+				particles[i].p += dt * particles[i].v;
+				particles[i].age += dt;
+			}
+
+		}
 	}
 	else
 	{
@@ -436,6 +570,116 @@ void ParticleSystem::drawParticles(float t)
 			drawPyramid(p, center, size);
 		}
 		//drawPyramid({ 1, 0, 0 }, { 0, 0, 0 }, 1);
+	}
+	else if (snow)
+	{
+		for (int i = 0; i < particles.size(); i++)
+		{
+			setDiffuseColor(0, 0, 0);
+			glPushMatrix();
+			glTranslated(particles[i].p[0],
+				particles[i].p[1],
+				particles[i].p[2]);
+			glScaled(0.2, 0.2, 0.2);
+			if (i == 0)
+			{
+				// test
+				int w, h; // should be same
+				unsigned char* im = readBMP("./samples/snow512.bmp", w, h);
+				if (im == NULL)
+				{
+					fl_alert("Can't load bitmap file");
+					return;
+				}
+				for (int i = 0; i < w * h * 3; i += 3)
+				{
+					if (im[i] < 10)
+						im[i] = 0;
+					if (im[i + 1] < 10)
+						im[i + 1] = 0;
+					if (im[i + 2] < 10)
+						im[i + 2] = 0;
+					//im[i] = (unsigned char)(im[i] * (1 - particles[0].age * 0.8));
+				}
+				initTexture(im, w, h);
+			}
+
+			drawBillboard(camera);
+			glPopMatrix();
+
+		}
+		glDisable(GL_TEXTURE_2D);
+	}
+	else if (fireworks)
+	{
+		for (int i = 0; i < particles.size(); i++)
+		{
+			setDiffuseColor(0, 0, 0);
+			glPushMatrix();
+			glTranslated(particles[i].p[0],
+				particles[i].p[1],
+				particles[i].p[2]);
+			glScaled(0.2, 0.2, 0.2);
+
+			if (i == 0)
+			{
+				int w, h; // should be same
+				unsigned char* im = readBMP("./samples/spark.bmp", w, h);
+				if (im == NULL)
+				{
+					fl_alert("Can't load bitmap file");
+					return;
+				}
+				for (int i = 0; i < w * h * 3; i += 3)
+				{
+					if (im[i] < 10)
+						im[i] = 0;
+					if (im[i + 1] < 10)
+						im[i + 1] = 0;
+					if (im[i + 2] < 10)
+						im[i + 2] = 0;
+					im[i] = (unsigned char)(im[i] * (1 - particles[0].age * 0.8));
+					if (im[i] < 10)
+						im[i] = 0;
+					if (particles[0].age > 1.2)
+						im[i] = 0;
+					im[i + 1] = 0;
+					im[i + 2] = 0;
+				}
+				initTexture(im, w, h);
+			}
+
+			drawBillboard(camera);
+			glPopMatrix();
+
+		}
+		glDisable(GL_TEXTURE_2D);
+	}
+	else if (fire)
+	{
+		//int w = 128, h = 128; // should be same
+		//unsigned char* im = new unsigned char[w * h * 3];
+		//for (int i = 0; i < w * h * 3; i += 3)
+		//{
+		//	im[i] = 255;
+		//	im[i + 1] = 0;
+		//	im[i + 2] = 0;
+		//}
+		
+		//initTexture(im, w, h, false);
+		for (int i = 0; i < particles.size(); i++)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			setDiffuseColor(1, 0, 0, max(0, 0.5 - particles[i].age * 0.9));
+			glPushMatrix();
+			glTranslated(particles[i].p[0],
+				particles[i].p[1],
+				particles[i].p[2]);
+			glScaled(0.025, 0.025, 0.025);
+			drawBillboardFire(camera);
+			glPopMatrix();
+		}
 	}
 	else
 	{
