@@ -34,6 +34,7 @@ public:
   static Fl_Menu_Item *m_pmiSaveAniScript;
   static Fl_Menu_Item *m_pmiSaveBitmapFile;
   static Fl_Menu_Item *m_pmiSaveMovie;
+  static Fl_Menu_Item* m_pmiloadHeightField;
   static Fl_Menu_Item *m_pmiExit;
   static Fl_Menu_Item *m_pmiNormal;
   static Fl_Menu_Item *m_pmiFlatShaded;

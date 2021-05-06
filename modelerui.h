@@ -47,7 +47,10 @@ public:
 	void redrawModelerView();
     void autoLoadNPlay();
 
-
+	// height field
+	int			   m_nHeight_field_width = 0;
+	int			   m_nHeight_field_height = 0;
+	unsigned char* m_nHeight_field = nullptr;
 
 protected:
 
@@ -73,6 +76,8 @@ private:
 
 	inline void cb_openAniScript_i(Fl_Menu_*, void*);
 	static void cb_openAniScript(Fl_Menu_*, void*);
+	inline void cb_loadHeightField_i(Fl_Menu_*, void*);
+	static void cb_loadHeightField(Fl_Menu_*, void*);
 	inline void cb_saveAniScript_i(Fl_Menu_*, void*);
 	static void cb_saveAniScript(Fl_Menu_*, void*);
 	inline void cb_saveBMPFile_i(Fl_Menu_*, void*);

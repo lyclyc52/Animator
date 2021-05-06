@@ -19,6 +19,7 @@
 #include "vec.h"
 #include <vector>
 #include "mat.h"
+#include "camera.h"
 
 using namespace std;
 class ParticleSystem {
@@ -60,7 +61,7 @@ public:
 
 	// This function should clear out your data structure
 	// of baked particles (without leaking memory).
-	virtual void clearBaked();	
+	virtual void clearBaked();
 
 
 
@@ -78,6 +79,12 @@ public:
 	Vec3f topLeft{ -2, 1.5, -2 };
 	// flocking
 	bool flocking{ false };
+	bool fireworks{ false };
+	bool snow{ false };
+	bool fire{ false };
+	bool cloth{ true };
+	bool interCollision{ false };
+	Camera* camera;
 protected:
 	class Particle
 	{
@@ -130,6 +137,12 @@ protected:
 	float farThresh = 1;
 	float fastVThresh = 0.8;
 	int minNeighbour = 5;
+
+	// fireworks
+	float fireworksV = 50;
+	int num_fireworks = 500;
+	int num_snow = 300;
+	int num_fire = 10000;
 	/** Some baking-related state **/
 	float bake_fps;						// frame rate at which simulation was baked
 	float bake_start_time;				// time at which baking started 

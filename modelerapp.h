@@ -65,6 +65,8 @@ public:
 	// Returns animating flag
 	bool Animating();
 
+	// get ui
+	ModelerUI* getUI() { return m_ui; }
 private:
 	// Private for singleton
 	ModelerApplication() : m_numControls(-1) { ps = 0; }
