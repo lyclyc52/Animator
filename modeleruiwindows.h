@@ -83,5 +83,11 @@ public:
   Fl_Button* m_firstBonusWindowButton;
   Fl_Window* m_firstBonusWindow;
   Fl_Value_Slider* m_pbtTesionSlider;
+
+  Fl_Input* m_average_mask_input;
+  Fl_Button* m_apply_button;
+  Fl_Light_Button* m_average_mask_check_button;
+
+  Fl_Light_Button* m_inner_control_check_button;
 };
 #endif

@@ -46,7 +46,7 @@ Fl_Menu_Item ModelerUIWindows::menu_m_pchoCurveType[] = {
  {"Bezier", 0,  0, 0, 0, 0, 0, 12, 0},
  {"Catmull-Rom", 0,  0, 0, 0, 0, 0, 12, 0},
  {"C2-Interpolating", 0,  0, 0, 0, 0, 0, 12, 0},
- {"Lane-Riesenfeld", 0,  0, 0, 0, 0, 0, 12, 0},
+ {"Subdivision", 0,  0, 0, 0, 0, 0, 12, 0},
  {"Polynomial", 0,  0, 0, 0, 0, 0, 12, 0},
  {0}
 };
@@ -133,7 +133,7 @@ ModelerUIWindows::ModelerUIWindows() {
             o->labelsize(12);
             o->user_data((void*)(this));
           }
-          { Fl_Button* o = m_firstBonusWindowButton = new Fl_Button(425, 470, 75, 20, "First Bonus");
+          { Fl_Button* o = m_firstBonusWindowButton = new Fl_Button(420, 470, 80, 20, "Some Bonus");
             o->labelsize(12);
             o->user_data((void*)(this));
           }
@@ -303,18 +303,37 @@ ModelerUIWindows::ModelerUIWindows() {
     o->end();
   }
 
-  m_firstBonusWindow = new Fl_Window(230, 230, "First Bonus Window");
+  m_firstBonusWindow = new Fl_Window(230, 230, "Bonus Window");
   m_firstBonusWindow->user_data((void*)(this));
+
   m_pbtTesionSlider = new Fl_Value_Slider(60, 20, 130, 20, "Tension");
   m_pbtTesionSlider->type(5);
   m_pbtTesionSlider->user_data((void*)(this));
-
   m_pbtTesionSlider->labelsize(12);
   m_pbtTesionSlider->minimum(0.00);
   m_pbtTesionSlider->maximum(0.70);
   m_pbtTesionSlider->step(0.01);
   m_pbtTesionSlider->value(0.50);
   m_pbtTesionSlider->align(FL_ALIGN_LEFT);
+
+  m_average_mask_input=new Fl_Input(120, 45, 100, 30, "Average Mask\n(split with space)");
+  m_average_mask_input->user_data((void*)(this));
+
+  m_average_mask_check_button = new Fl_Light_Button(20, 80, 90, 20, "Normalized");
+  //m_average_mask_check_button->value(normalized);
+  m_average_mask_check_button->labelsize(12);
+  m_average_mask_check_button->user_data((void*)(this));
+
+  //m_average_mask_check_button->callback(cb_filter_normalized);
+
+  m_apply_button = new Fl_Button(130, 200, 80, 20, "&Apply");
+  m_apply_button->labelsize(12);
+  m_apply_button->user_data((void*)(this));
+  //m_average_mask_apply_button->callback(cb_filter_apply);
+
+  m_inner_control_check_button = new Fl_Light_Button(20, 110, 110, 20, "Add inner control");
+  m_inner_control_check_button->labelsize(12);
+  m_inner_control_check_button->user_data((void*)(this));
 
   m_firstBonusWindow->end();
   

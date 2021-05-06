@@ -947,9 +947,18 @@ m_bSaveMovie(false)
 	m_pwndMainWnd->when(FL_HIDE);
 
 	//bonus
+	m_firstBonusWindowButton->callback((Fl_Callback*)cb_first_bonus_window_button);
+
 	m_pbtTesionSlider->callback((Fl_Callback*)cb_tension);
 
-	m_firstBonusWindowButton->callback((Fl_Callback*)cb_first_bonus_window_button);
+	m_average_mask_input->callback((Fl_Callback*)cb_average_mask_input);
+	m_apply_button->callback((Fl_Callback*)cb_apply);
+	m_average_mask_check_button->callback((Fl_Callback*)cb_is_apply_mask);
+
+	
+	m_inner_control_check_button -> callback((Fl_Callback*)cb_has_inner_control);
+
+
 
 	m_poutTime->value("0.00");
 	m_poutPlayStart->value("0.00");
@@ -1061,6 +1070,132 @@ void ModelerUI::cb_tension(Fl_Value_Slider* o, void* v)
 }
 
 
+
+
+int convert_to_int(const char* a)
+{
+	int l = strlen(a);
+	int r = 0;
+	for (int i = 0; i < l; i++)
+	{
+		r += (a[i] - '0') * pow(10.0, (l - i - 1) * 1.0);
+	}
+	return r;
+}
+
+float convert_to_double(const char* a, int l)
+{
+	int dot = 0;
+
+	for (dot; dot < l; dot++)
+	{
+		if (a[dot] == '.')
+		{
+			break;
+		}
+	}
+
+	float r = 0.0;
+	bool isM = false;
+	if (a[0] == '-')
+		isM = true;
+	for (int i = (int)isM; i < dot; i++)
+	{
+		r += (a[i] - '0') * pow(10.0, (dot - i - 1) * 1.0);
+	}
+	for (int i = dot + 1; i < l; i++)
+	{
+		r += (a[i] - '0') * pow(10.0, -(i - dot) * 1.0) * 1.0;
+	}
+	if (isM)
+		r *= (-1.0);
+	return r;
+}
+
 void ModelerUI::cb_first_bonus_window_button(Fl_Button* o, void* v) {
 	((ModelerUI*)(o->user_data()))->m_firstBonusWindow->show();
+}
+
+
+void ModelerUI::cb_average_mask_input_i(Fl_Widget* o, void* v)
+{
+
+	const char* temp = (((Fl_Input*)o)->value());
+
+	int space_count = 0;
+	for (int i = 0; i < strlen(temp); i++)
+	{
+		if (temp[i] == ' ')
+			space_count++;
+	}
+	space_count++;
+	CurveEvaluator* c = m_pwndGraphWidget->getEvaluator();
+	if (!c)
+		return;
+	if (!(c->mask.empty()))
+	{
+		cout << 1;
+		c->mask.clear();
+	}
+
+
+	int count = 0;
+	for (int i = 0; i < strlen(temp); i++)
+	{
+		int start = i;
+		int end = i;
+		for (i; temp[i] != ' ' && i < strlen(temp); i++, end++);
+
+		//std::cout << start;
+		(c->mask).push_back( convert_to_double(temp + start, end - start));
+		count++;
+	}
+
+	m_pwndGraphWidget->setMask(m_average_mask_check_button->value());
+}
+
+void ModelerUI::cb_average_mask_input(Fl_Widget* o, void* v)
+{
+	((ModelerUI*)(o->user_data()))->cb_average_mask_input_i(o, v);
+}
+
+inline void ModelerUI::cb_is_apply_mask_i(Fl_Light_Button*, void*)
+{
+	if (m_average_mask_check_button->value() == 1) {
+		m_pwndGraphWidget->setMask(true);
+	}
+	else if (m_average_mask_check_button->value() == 0) {
+		m_pwndGraphWidget->setMask(false);
+	}
+
+}
+void ModelerUI::cb_is_apply_mask(Fl_Light_Button* o, void* v)
+{
+	((ModelerUI*)(o->user_data()))->cb_is_apply_mask_i(o, v);
+}
+
+
+inline void ModelerUI::cb_has_inner_control_i(Fl_Light_Button*, void*)
+{
+	if (m_inner_control_check_button->value() == 1) {
+		m_pwndGraphWidget->setInnerControl(true);
+	}
+	else if (m_inner_control_check_button->value() == 0) {
+		m_pwndGraphWidget->setInnerControl(false);
+	}
+}
+void ModelerUI::cb_has_inner_control(Fl_Light_Button* o, void* v)
+{
+	((ModelerUI*)(o->user_data()))->cb_has_inner_control_i(o, v);
+}
+
+
+
+inline void ModelerUI::cb_apply_i(Fl_Button*, void*)
+{
+	m_pwndGraphWidget->redraw();
+}
+void ModelerUI::cb_apply(Fl_Button* o, void* v)
+{
+	((ModelerUI*)(o->user_data()))->cb_apply_i(o, v);
 }

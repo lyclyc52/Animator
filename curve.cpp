@@ -13,7 +13,8 @@
 #include <float.h>
 
 #include "Curve.h"
-#include "CurveEvaluator.h"
+#include "Catmull-Romcurveevaluator.h"
+#include <cassert>
 
 float Curve::s_fCtrlPtXEpsilon = 0.0001f;
 
@@ -231,6 +232,35 @@ int Curve::getClosestControlPoint(const Point& point, Point& ptCtrlPt) const
 	return iMinDistPt;
 }
 
+bool Curve::isInnerControlMode() const
+{
+	return m_pceEvaluator->has_inner_control &&
+		dynamic_cast<const CatmullRomCurveEvaluator*>(m_pceEvaluator);
+}
+
+int Curve::getClosestInnerControlPoint(const Point& point, Point& ptCtrlPt) const
+{
+	reevaluate();
+
+	int iMinDistPt = 0;
+	float fMinDistSquared = FLT_MAX;
+
+	for (int i = 0; i < m_pceEvaluator->m_ptvInnerCtrlPts.size(); ++i) {
+		float delta_x = (m_pceEvaluator->m_ptvInnerCtrlPts[i].x - point.x);
+		float delta_y = (m_pceEvaluator->m_ptvInnerCtrlPts[i].y - point.y);
+
+		float fDistSquared = delta_x * delta_x + delta_y * delta_y;
+
+		if (fDistSquared < fMinDistSquared) {
+			iMinDistPt = i;
+			fMinDistSquared = fDistSquared;
+			ptCtrlPt = m_pceEvaluator->m_ptvInnerCtrlPts[i];
+		}
+	}
+
+	return iMinDistPt;
+}
+
 void Curve::getClosestPoint(const Point& pt, Point& ptClosestPt) const
 {
 	reevaluate();
@@ -353,6 +383,137 @@ void Curve::moveControlPoints(const std::vector<int>& ivCtrlPts, const Point& pt
 	m_bDirty = true;
 }
 
+void Curve::moveInnerControlPoints(const Point& ptOffset, const float fMinY, const float fMaxY)
+{
+	Point ptActualOffset = ptOffset;
+	int iCtrlPt = m_pceEvaluator->current_inner_control_point;
+
+
+
+	int iOuterCtrlPt = iCtrlPt / 2;
+	int position = iCtrlPt % 2;
+
+	if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].y + ptActualOffset.y > fMaxY)
+		ptActualOffset.y = fMaxY - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].y;
+
+	if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].y + ptActualOffset.y < fMinY)
+		ptActualOffset.y = fMinY - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].y;
+
+	if (position == 0)
+	{
+		if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].y - ptActualOffset.y > fMaxY)
+			ptActualOffset.y = -(fMaxY - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].y);
+
+		if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].y - ptActualOffset.y < fMinY)
+			ptActualOffset.y = -(fMinY - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].y);
+	}
+	else
+	{
+		if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].y - ptActualOffset.y > fMaxY)
+			ptActualOffset.y = -(fMaxY - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].y);
+
+		if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].y - ptActualOffset.y < fMinY)
+			ptActualOffset.y = -(fMinY - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].y);
+	}
+
+	if (iCtrlPt > 0) {
+
+		if (position == 1)
+		{
+			if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x + ptActualOffset.x < m_ptvCtrlPts[iOuterCtrlPt].x + s_fCtrlPtXEpsilon)
+				ptActualOffset.x = m_ptvCtrlPts[iOuterCtrlPt].x + s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x;
+			
+			if (iOuterCtrlPt>0)
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x - ptActualOffset.x < m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 2].x + s_fCtrlPtXEpsilon)
+					ptActualOffset.x = -(m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 2].x + s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x);
+			}
+			else
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x - ptActualOffset.x < 0.0)
+					ptActualOffset.x = -(m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x);
+			}
+		}
+		else
+		{
+			if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x + ptActualOffset.x < m_ptvCtrlPts[iOuterCtrlPt-1].x + s_fCtrlPtXEpsilon)
+				ptActualOffset.x = m_ptvCtrlPts[iOuterCtrlPt - 1].x + s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x;
+		
+			if (iOuterCtrlPt < m_ptvCtrlPts.size()-1)
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x - ptActualOffset.x > m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 2].x - s_fCtrlPtXEpsilon)
+					ptActualOffset.x = -(m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 2].x - s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x);
+			}
+			else
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x - ptActualOffset.x > m_fMaxX)
+					ptActualOffset.x = -(m_fMaxX - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x);
+			}
+		}
+
+	}
+	else { // iCtrlPt == 0
+		if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x + ptActualOffset.x < 0.0f)
+			ptActualOffset.x = -m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x;
+	}
+
+	if (iCtrlPt < m_pceEvaluator->m_ptvInnerCtrlPts.size() - 1) {
+		if (position == 0)
+		{
+			if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x + ptActualOffset.x > m_ptvCtrlPts[iOuterCtrlPt].x - s_fCtrlPtXEpsilon)
+				ptActualOffset.x = m_ptvCtrlPts[iOuterCtrlPt].x + s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x;
+
+			if (iOuterCtrlPt < m_ptvCtrlPts.size() - 1)
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x - ptActualOffset.x > m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 2].x - s_fCtrlPtXEpsilon)
+					ptActualOffset.x = -(m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 2].x - s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x);
+			}
+			else
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x - ptActualOffset.x > m_fMaxX)
+					ptActualOffset.x = -(m_fMaxX - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x);
+			}
+		}
+		else
+		{
+			if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x + ptActualOffset.x > m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x - s_fCtrlPtXEpsilon)
+				ptActualOffset.x = m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x - s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x;
+			
+			if (iOuterCtrlPt > 0)
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x - ptActualOffset.x < m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 2].x + s_fCtrlPtXEpsilon)
+					ptActualOffset.x = -(m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 2].x + s_fCtrlPtXEpsilon - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x);
+			}
+			else
+			{
+				if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x - ptActualOffset.x < 0.0)
+					ptActualOffset.x = -(m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x);
+			}
+		}
+	}
+	else { // iCtrlPt == iCtrlPtCount - 1
+		std::cout << iCtrlPt << std::endl;
+		if (m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x + ptActualOffset.x > m_fMaxX)
+			ptActualOffset.x = m_fMaxX - m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x;
+	}
+
+	m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].x += ptActualOffset.x;
+	m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt].y += ptActualOffset.y;
+
+	if (position == 0)
+	{
+		m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].x -= ptActualOffset.x;
+		m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt + 1].y -= ptActualOffset.y;
+	}
+	else
+	{
+		m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].x -= ptActualOffset.x;
+		m_pceEvaluator->m_ptvInnerCtrlPts[iCtrlPt - 1].y -= ptActualOffset.y;
+	}
+	m_bDirty = true;
+
+}
+
 void Curve::drawCurve() const
 {
 	reevaluate();
@@ -371,6 +532,7 @@ void Curve::drawEvaluatedCurveSegments() const
 			++it) {
 			glVertex2f(it->x, it->y);
 		}
+
 
 	glEnd();
 }
@@ -411,6 +573,30 @@ void Curve::drawControlPoints() const
 	glEnd();
 
 	glPointSize(fPointSize);
+}
+
+void Curve::drawInnerControlPoint(void) const
+{
+	if (isInnerControlMode())
+	{
+		//std::cout << 22 << std::endl;
+		double fPointSize;
+		glGetDoublev(GL_POINT_SIZE, &fPointSize);
+		glPointSize(7.0);
+
+		glColor3d(1, 1, 1);
+		glBegin(GL_POINTS);
+		for (std::vector<Point>::const_iterator kit = m_pceEvaluator->m_ptvInnerCtrlPts.begin();
+			kit != m_pceEvaluator->m_ptvInnerCtrlPts.end();
+			++kit) {
+			glVertex2f(kit->x, kit->y);
+		}
+		glEnd();
+
+		glPointSize(fPointSize);
+	}
+
+
 }
 
 void Curve::sortControlPoints() const

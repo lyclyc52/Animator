@@ -87,6 +87,8 @@ public:
 	float leftTime() const;
 	float rightTime() const;
 
+
+
 	float currTime() const;
 	void currTime(float fCurrTime);
 	float endTime() const;
@@ -108,6 +110,8 @@ public:
 
 	//bonus
 	void setTension(float tension);
+	void setMask(bool is_mask);
+	void setInnerControl(bool has_inner);
 
 	// note that this value is evaluated lazily (it's only updated
 	// after a redraw.
@@ -122,6 +126,10 @@ public:
 	Point windowToGrid( Point p ) ;
 	Point gridToWindow( Point p ) ;
 
+	CurveEvaluator* getEvaluator() {
+		return m_ppceCurveEvaluators[CURVE_TYPE_LANRIESENFELD];
+	}
+
 protected:
 	int m_iEventToDo;
 	bool m_bHasEvent;
@@ -129,6 +137,9 @@ protected:
 	bool m_bRButtonDown;
 	bool m_bPanning;
 	int m_iMouseX, m_iMouseY, m_iMouseDX, m_iMouseDY;
+
+	//bonus
+	bool m_bhasInner{false};
 
 	// the current viewport (for zoomin). 
 	// (left, right, bottom, top) = (0, 1, 0, 1) means that there's no zoomin.
@@ -180,6 +191,7 @@ protected:
 
 	Point curveToWindow(int iCurve, const Point& ptCurve) const;
 	Point windowToCurve(int iCurve, const Point& ptWindow) const;
+
 };
 
 #endif // GRAPHWIDGET_H_INCLUDED
