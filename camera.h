@@ -27,12 +27,20 @@ protected:
     float		mElevation;
     float		mAzimuth;
     float		mDolly;
+    float       mLastDolly;
     float		mTwist; // Not implemented yet
-    
+    int         next_up_index = 1;
+
+    Vec3f   mUpVectors[2] = { Vec3f(0,0,1), Vec3f(0,1,0) };
+    int index = 1;
     Vec3f		mLookAt;
+    Vec3f       lastLookAt;
     
     Vec3f		mPosition;
     Vec3f		mUpVector;
+
+    Vec3f U;
+    Vec3f L;
     bool		mDirtyTransform;
     
     void calculateViewingTransformParameters();
@@ -43,7 +51,7 @@ protected:
 	Curve *			mKeyframes[NUM_KEY_CURVES];
 	int				mNumKeyframes;
     
-    
+
 public:
     
     //---[ Constructors ]----------------------------------
