@@ -61,7 +61,7 @@ public:
 
 	// This function should clear out your data structure
 	// of baked particles (without leaking memory).
-	virtual void clearBaked();	
+	virtual void clearBaked();
 
 
 
@@ -82,6 +82,8 @@ public:
 	bool fireworks{ false };
 	bool snow{ false };
 	bool fire{ false };
+	bool cloth{ true };
+	bool interCollision{ false };
 	Camera* camera;
 protected:
 	class Particle

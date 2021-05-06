@@ -363,21 +363,26 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 
 		}
 		// inter-collision detection
-		for (int i = 0; i < particles.size(); i++)
+		if (interCollision)
 		{
-			for (int j = i; j < particles.size(); j++)
+			for (int i = 0; i < particles.size(); i++)
 			{
-				float dist = (particles[i].p - particles[j].p).length();
-				if (dist < 2 * 0.01)
+				for (int j = i; j < particles.size(); j++)
 				{
-					Vec3f tempV = particles[i].v;
-					particles[i].v = particles[j].v;
-					particles[j].v = tempV;
+					float dist = (particles[i].p - particles[j].p).length();
+					if (dist < 2 * 0.01)
+					{
+						Vec3f tempV = particles[i].v;
+						particles[i].v = particles[j].v;
+						particles[j].v = tempV;
+					}
 				}
 			}
 		}
 		if (simulate)
 			baked_particles.push_back(particles);
+		if (!cloth)
+			return;
 		// ---------------------------------------------------------------- //
 		// cloth
 		for (int r = 0; r < numParticlesHeight; r++)
@@ -738,6 +743,8 @@ void ParticleSystem::drawParticles(float t)
 				glPopMatrix();
 			}
 		}
+		if (!cloth)
+			return;
 		// draw cloth
 		setDiffuseColor(1, 0, 0);
 		for (int r = 0; r < numParticlesHeight - 1; r++)

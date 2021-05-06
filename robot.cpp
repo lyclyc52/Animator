@@ -58,7 +58,7 @@ enum SampleModelControls
 
 	PARTICLE_CLOTH_POS_X, PARTICLE_CLOTH_POS_Y, PARTICLE_CLOTH_POS_Z,
 
-	FLOCKING, HEIGHT_FIELD, FIREWORKS, SNOW, FIRE,
+	FLOCKING, HEIGHT_FIELD, FIREWORKS, SNOW, FIRE, CLOTH, INTER_COLLISION,
 
 	NUMCONTROLS
 };
@@ -1160,6 +1160,8 @@ void RobotModel::draw()
 	ps->fireworks = VAL(FIREWORKS);
 	ps->fire = VAL(FIRE);
 	ps->snow = VAL(SNOW);
+	ps->cloth = VAL(CLOTH);
+	ps->interCollision = VAL(INTER_COLLISION);
 	ps->camera = m_ctrl_camera;
 	// This call takes care of a lot of the nasty projection 
 	// matrix stuff.  Unless you want to fudge directly with the 
@@ -1611,6 +1613,8 @@ int main()
 	controls[HEIGHT_FIELD] = ModelerControl("Height field", 0, 1, 1, 0);
 	controls[SNOW] = ModelerControl("Snow", 0, 1, 1, 0);
 	controls[FIRE] = ModelerControl("Fire", 0, 1, 1, 0);
+	controls[CLOTH] = ModelerControl("Cloth", 0, 1, 1, 1);
+	controls[INTER_COLLISION] = ModelerControl("Inter-collision detection", 0, 1, 1, 0);
 
 	ParticleSystem* ps = new ParticleSystem();
 	
