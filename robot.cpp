@@ -1183,6 +1183,10 @@ void RobotModel::draw()
 	{
 		textureProjection();
 		endDraw();
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
+		glDisable(GL_TEXTURE_GEN_R);
+		glDisable(GL_TEXTURE_GEN_Q);
 		return;
 	}
 	// --------------------------------------------------------------------------------------------------//
