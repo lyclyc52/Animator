@@ -13,7 +13,7 @@
 
 //==========[ class Camera ]===================================================
 
-typedef enum { kActionNone, kActionTranslate, kActionRotate, kActionZoom, kActionTwist,} MouseAction_t;
+typedef enum { kActionNone, kActionTranslate, kActionRotate, kActionZoom, } MouseAction_t;
 
 enum KeyframeCurves
 { 
@@ -31,7 +31,7 @@ protected:
     float		mTwist; // Not implemented yet
     int         next_up_index = 1;
 
-    Vec3f   mUpVectors[2] = { Vec3f(0,0,1), Vec3f(0,1,0) };
+    Vec3f   mUpVectors[2] = { Vec3f(0,0,1.0f), Vec3f(0,1.0f,0) };
     int index = 1;
     Vec3f		mLookAt;
     Vec3f       lastLookAt;
@@ -58,7 +58,22 @@ public:
     
     // defaults to (0,0,0) facing down negative z axis
     Camera();
-    
+    inline void reset() {
+        Vec3f F = mPosition - mLookAt;
+        F.normalize();
+        U = Vec3f(mUpVector[0], mUpVector[1], mUpVector[2]);
+        U.normalize();
+        L = U ^ F;
+        L.normalize();
+        U = F ^ L;
+        U.normalize();
+
+
+        mAzimuth = 0.0f;
+        mElevation = 0.0f;
+        mTwist = 0.0f;
+        mDirtyTransform = false;
+    };
     //---[ Settings ]--------------------------------------
     
     inline void setElevation( float elevation ) 

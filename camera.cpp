@@ -19,7 +19,7 @@ const float kMouseRotationSensitivity = 1.0f / 135.0f;
 const float kMouseTranslationXSensitivity = 0.03f;
 const float kMouseTranslationYSensitivity = 0.03f;
 const float kMouseZoomSensitivity = 0.08f;
-const float kMouseTwistSensitivity = 0.5f / 90.0f;
+const float kMouseTwistSensitivity = 3.0f / 90.0f;
 
 void MakeDiagonal(Mat4f& m, float k)
 {
@@ -115,6 +115,8 @@ void Camera::calculateViewingTransformParameters()
 	//Mat4f azimXform;
 	//Mat4f elevXform;
 	//Mat4f twistXform;
+
+
 	Mat4f originXform;
 
 	//Vec3f upVector;
@@ -136,53 +138,78 @@ void Camera::calculateViewingTransformParameters()
 		float sinTheta = sin(theta / 2);
 		Vec3f u = mAzimuth * U - mElevation * L;
 		u.normalize();
-		cout << u << endl;
-		cout << mPosition << endl;
-		cout << mUpVector << endl<<endl;
+		//cout << u << endl;
+		//cout << mPosition << endl;
+		//cout << mUpVector << endl<<endl;
 
-		Vec3f lastP = mPosition;
 		mPosition = (cosTheta * cosTheta - sinTheta * sinTheta) * mPosition +
 			2 * cosTheta * sinTheta * (u ^ mPosition) +
 			(u * mPosition) * 2 * sinTheta * sinTheta * u;
 	}
+
+
+
+
 	mPosition = (mDolly / mLastDolly) * mPosition;
 	mLastDolly = mDolly;
 	mPosition = originXform * mPosition;
 	lastLookAt = mLookAt;
 
-	Vec3f F = mPosition - mLookAt;
-	F.normalize();
-	U = Vec3f(mUpVector[0], mUpVector[1], mUpVector[2]);
-	U.normalize();
-	L = U ^ F;
-	L.normalize();
-	U = F ^ L;
-	U.normalize();
 
-	Vec3f p =mPosition;
-	mPosition.normalize();
-	if ((mPosition ^ mUpVector).length() < 0.1)
+	if (mTwist > 0.1 || mTwist < -0.1)
 	{
+		float cosAlpha = cos(mTwist / 2);
+		float sinAlpha = sin(mTwist / 2);
+		Vec3f u = mPosition;
+		u.normalize();
+
+		//I don't know what's happening. The two perpendicular vectors converge to the smae after rotation
+		//Vec3f lastP = mPosition;
+				cout <<"Before Twist: "<< mUpVectors[index] << mUpVectors[(index + 1) % 2] << endl;
+				cout << mUpVectors[0] * mUpVectors[1] << endl;
+		mUpVectors[index] = (cosAlpha * cosAlpha - sinAlpha * sinAlpha) * mUpVectors[index] +
+			2 * cosAlpha * sinAlpha * (u ^ mUpVectors[index]) +
+			(u * mUpVectors[index]) * 2 * sinAlpha * sinAlpha * u;
+		mUpVectors[(index + 1) % 2] = (cosAlpha * cosAlpha - sinAlpha * sinAlpha) * mUpVectors[(index + 1) % 2] +
+			2 * cosAlpha * sinAlpha * (u ^ mUpVectors[(index + 1) % 2]) +
+			(u * mUpVectors[(index + 1) % 2]) * 2 * sinAlpha * sinAlpha * u;
+			
+		mUpVectors[index].normalize();
+		mUpVectors[(index + 1) % 2].normalize();
+		mUpVector= mUpVectors[index];
+		//cout << mUpVector << endl;
+
+		//cout <<"Twist: "<< mUpVectors[0] << mUpVectors[1] << endl;
+		//cout << mUpVectors[0] * mUpVectors[1] << endl;
+		//reset();
+
+	}
+
+
+	Vec3f p = mPosition;
+	p.normalize();
+	if ((p ^ mUpVector).length() < 0.01)
+	{
+
 		index = (index + 1) % 2;
+		cout <<"Change: " <<mUpVectors[0]<< mUpVectors[1] << endl;
 		mUpVector = mUpVectors[index];
 	}
-	if ((mUpVector ^ lastP) * (mUpVector ^ mPosition) < 0)
+	Vec3f newF = (mPosition - mLookAt);
+		newF.normalize();
+	if (L * (mUpVector ^ newF)< -0.00001)
 	{
-		mUpVector = -mUpVector;
-		next_up_index *= -1;
+		mUpVector = -1*mUpVector;
+		mUpVectors[index] = mUpVector;
 	}
-	//else
-	//{
-	//	mUpVector = Vec3f(0.0001, -next_up_index * cos(mTwist), sin(mTwist));
-	//}
 
 
-	//cout << mPosition << endl;;
 
-	mPosition = p;
-	mAzimuth = 0.0f;
-	mElevation = 0.0f;
-	
+
+
+	cout << mUpVector << endl;
+	cout << mPosition << endl<<endl;
+
 	//mPosition = Vec3f(0, 0, 0);
 
 	//mPosition = originXform * (azimXform * (elevXform * (dollyXform * mPosition)));
@@ -192,7 +219,7 @@ void Camera::calculateViewingTransformParameters()
 	//else
 	//	mUpVector = Vec3f(0, 1*cos(mTwist), sin(mTwist));
 
-	mDirtyTransform = false;
+	reset();
 }
 
 Camera::Camera()
@@ -307,10 +334,12 @@ void Camera::dragMouse(int x, int y)
 		setDolly(getDolly() + dDolly);
 		float twist = mouseDelta[0] * kMouseTwistSensitivity;
 		setTwist(getTwist() + twist);
+		if (getTwist() > M_PI)
+			mTwist -= 2.0 * M_PI;
 		break;
 	}
-	case kActionTwist:
-		// Not implemented
+	//case kActionTwist:
+	//	// Not implemented
 	default:
 		break;
 	}
