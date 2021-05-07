@@ -138,6 +138,21 @@ void ParticleSystem::resetSimulation(float t)
 	}
 	else
 	{
+		if (simulateCollision)
+		{
+			for (int i = 0; i < bulletNum; i++)
+			{
+				bullets.push_back(ParticleSystem::Particle());
+				float z = 7 + i * 0.8;
+				Vec3f pBias = getBias() / 3;
+				pBias[2] = 0;
+				Vec3f InitPos = Vec3f{ 0, 0, z } + pBias;
+				Vec3f InitV{ 0, 0, -20 };
+				bullets[i] = ParticleSystem::Particle(mass, InitV, Vec3f{ 0, 0, 0 },
+					Vec3f{ 0, 0, 0 }, InitPos);
+				bullets[i].age = 0;
+			}
+		}
 		for (int i = 0; i < num_particles; i++)
 		{
 			Vec3f bias = getBias() / 7.0f;
@@ -334,6 +349,36 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 	}
 	else
 	{
+		if(simulateCollision)
+		{
+			for (int i = 0; i < bulletNum; i++)
+			{
+				if (bullets[i].age > 1.5)
+				{
+					float z = 7 + i * 0.8;
+					Vec3f pBias = getBias() / 3;
+					pBias[2] = 0;
+					Vec3f InitPos = Vec3f{ 0, 0, z } + pBias;
+					Vec3f InitV{ 0, 0, -20 };
+					bullets[i] = ParticleSystem::Particle(mass, InitV, Vec3f{ 0, 0, 0 },
+						Vec3f{ 0, 0, 0 }, InitPos);
+					bullets[i].age = 0;
+				}
+				else
+				{
+					Vec3f diff = collisionPos - bullets[i].p;
+					float dist = diff.length();
+					if (dist < bulletR + collisionR)
+					{
+						diff.normalize();
+						bullets[i].v = -((2 * bullets[i].v * diff) * diff - bullets[i].v);
+					}
+					bullets[i].p += dt * bullets[i].v;
+					bullets[i].age += dt;
+				}
+			}
+
+		}
 		if (!cloth)
 			return;
 		for (int i = 0; i < particles.size(); i++)
@@ -689,6 +734,21 @@ void ParticleSystem::drawParticles(float t)
 	}
 	else
 	{
+		if (simulateCollision)
+		{
+			setDiffuseColor(0, 0, 1);
+			for (int i = 0; i < bulletNum; i++)
+			{
+				if (bullets[i].p[2] < 6)
+				{
+					glPushMatrix();
+					glTranslated(bullets[i].p[0], bullets[i].p[1], bullets[i].p[2]);
+					drawSphere(bulletR);
+					glPopMatrix();
+				}
+			}		
+		}
+
 		if (!cloth)
 			return;
 		// check whether have a brake frame at t

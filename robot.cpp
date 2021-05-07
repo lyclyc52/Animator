@@ -60,6 +60,8 @@ enum SampleModelControls
 
 	FLOCKING, HEIGHT_FIELD, FIREWORKS, SNOW, FIRE, CLOTH, INTER_COLLISION, PROJECTION,
 
+	RIGID_BODY_COLLISION,
+
 	NUMCONTROLS
 };
 
@@ -951,36 +953,6 @@ void drawCircleRingOnBody(float r, float R);
 
 void drawBodyOut(float h)
 {
-	//glTranslated(10, -3, 0);
-	setDiffuseColor(140 / 255.0, 243 / 255.0, 252 / 255.0);
-	glPushMatrix();
-	glTranslated(-2, h / 2, 0);
-	glPushMatrix();
-	glRotated(-75, 0, 0, 1); // show texture
-	glPopMatrix();
-	drawSphere(h / 4.5);
-	if (VAL(LASING) == 1)
-	{
-		glPushMatrix();
-		{
-			const float inf = 10;
-			glRotated(-90, 0, 1, 0);
-			drawCylinder(4 * inf + 2, 1.5, 1.5);
-			glRotated(90, 0, 1, 0);
-
-			glRotated(90, 0, 0, 1);
-
-			glPushMatrix();
-			for (int i = 0; i < 6; i++)
-			{
-				glTranslated(0, 0.7 * i + 3, 0);
-				drawCircleRing();
-			}
-			glPopMatrix();
-		}
-		glPopMatrix();
-	}
-	glPopMatrix();
 
 	const int h_sample = 100;
 	float v[360][h_sample][3];
@@ -1162,6 +1134,7 @@ void RobotModel::draw()
 	ps->snow = VAL(SNOW);
 	ps->cloth = VAL(CLOTH);
 	ps->interCollision = VAL(INTER_COLLISION);
+	ps->simulateCollision = VAL(RIGID_BODY_COLLISION);
 	ps->camera = m_ctrl_camera;
 	// This call takes care of a lot of the nasty projection 
 	// matrix stuff.  Unless you want to fudge directly with the 
@@ -1196,18 +1169,22 @@ void RobotModel::draw()
 	glLightfv(GL_LIGHT1, GL_POSITION, light1_pos);
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_intensity);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light_intensity);
+	// --------------------------------------------------------------------------------------------------//
+	// test collision
+	/*glPushMatrix();
+	glTranslated(0, 0, 4);
+	drawSphere(0.3);
+	glPopMatrix();*/
+	// test end
+	// --------------------------------------------------------------------------------------------------//
 
 	// --------------------------------------------------------------------------------------------------//
-	// test texture projection
 	if (VAL(PROJECTION) == 1)
 	{
 		textureProjection();
 		endDraw();
 		return;
 	}
-
-
-	// test end
 	// --------------------------------------------------------------------------------------------------//
 	if (VAL(FLOCKING))
 	{
@@ -1258,7 +1235,7 @@ void RobotModel::draw()
 		float h_leg = 1.8;
 		float h_feet = 0.8;
 		float body_width_scale = 1;
-		float body_depth_scale = 0.8;
+		float body_depth_scale = 1;
 
 
 		glTranslated(VAL(XPOS), h_bottom + h_feet + h_leg + VAL(YPOS), VAL(ZPOS));
@@ -1275,6 +1252,48 @@ void RobotModel::draw()
 
 			glTranslated(0, -h_middle, 0);
 			setDiffuseColor(0.5, 0.5, 0);
+			// draw body core
+			//glTranslated(10, -3, 0);
+			
+			setDiffuseColor(140 / 255.0, 243 / 255.0, 252 / 255.0);
+			glPushMatrix();
+			glTranslated(-2, h_middle / 2, 0);
+			glPushMatrix();
+			glRotated(-75, 0, 0, 1); // show texture
+			glPopMatrix();
+			drawSphere(h_middle / 4.5);
+			{
+				// get the sphere position
+				Mat4f worldM = cameraM.inverse() * getModelViewMatrix();
+				Vec4f p4 = worldM * Vec4f(0, 0, 0, 1);
+				p4 = p4 / p4[3];
+				ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+				ps->collisionPos = Vec3f(p4[0], p4[1], p4[2]);
+				ps->collisionR = h_middle / 4.5;
+			}
+			if (VAL(LASING) == 1)
+			{
+				glPushMatrix();
+				{
+					const float inf = 10;
+					glRotated(-90, 0, 1, 0);
+					drawCylinder(4 * inf + 2, 1.5, 1.5);
+					glRotated(90, 0, 1, 0);
+
+					glRotated(90, 0, 0, 1);
+
+					glPushMatrix();
+					for (int i = 0; i < 6; i++)
+					{
+						glTranslated(0, 0.7 * i + 3, 0);
+						drawCircleRing();
+					}
+					glPopMatrix();
+				}
+				glPopMatrix();
+			}
+			glPopMatrix();
+			// draw body core end
 			drawBodyOut(h_middle);
 			glTranslated(0, h_middle, 0);
 			glScaled(1 / body_depth_scale, 1, 1 / body_width_scale);
@@ -1630,6 +1649,7 @@ int main()
 	controls[CLOTH] = ModelerControl("Cloth and smoke", 0, 1, 1, 1);
 	controls[INTER_COLLISION] = ModelerControl("Inter-collision detection", 0, 1, 1, 0);
 	controls[PROJECTION] = ModelerControl("texture project", 0, 1, 1, 0);
+	controls[RIGID_BODY_COLLISION] = ModelerControl("rigid body collision", 0, 1, 1, 1);
 
 	ParticleSystem* ps = new ParticleSystem();
 	
