@@ -334,6 +334,8 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 	}
 	else
 	{
+		if (!cloth)
+			return;
 		for (int i = 0; i < particles.size(); i++)
 		{
 			float ageBias = getBias()[0] / 1.5f;
@@ -381,8 +383,7 @@ void ParticleSystem::computeForcesAndUpdateParticles(float t)
 		}
 		if (simulate)
 			baked_particles.push_back(particles);
-		if (!cloth)
-			return;
+		
 		// ---------------------------------------------------------------- //
 		// cloth
 		for (int r = 0; r < numParticlesHeight; r++)
@@ -688,6 +689,8 @@ void ParticleSystem::drawParticles(float t)
 	}
 	else
 	{
+		if (!cloth)
+			return;
 		// check whether have a brake frame at t
 		int frame_i = (int)((t - bake_start_time) * bake_fps);
 		setDiffuseColor(1, 1, 1);
@@ -743,8 +746,7 @@ void ParticleSystem::drawParticles(float t)
 				glPopMatrix();
 			}
 		}
-		if (!cloth)
-			return;
+		
 		// draw cloth
 		setDiffuseColor(1, 0, 0);
 		for (int r = 0; r < numParticlesHeight - 1; r++)

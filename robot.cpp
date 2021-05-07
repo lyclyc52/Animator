@@ -58,7 +58,7 @@ enum SampleModelControls
 
 	PARTICLE_CLOTH_POS_X, PARTICLE_CLOTH_POS_Y, PARTICLE_CLOTH_POS_Z,
 
-	FLOCKING, HEIGHT_FIELD, FIREWORKS, SNOW, FIRE, CLOTH, INTER_COLLISION,
+	FLOCKING, HEIGHT_FIELD, FIREWORKS, SNOW, FIRE, CLOTH, INTER_COLLISION, PROJECTION,
 
 	NUMCONTROLS
 };
@@ -1166,6 +1166,8 @@ void RobotModel::draw()
 	// This call takes care of a lot of the nasty projection 
 	// matrix stuff.  Unless you want to fudge directly with the 
 	// projection matrix, don't bother with this ...
+	if (VAL(PROJECTION) == 1)
+		ps->cloth = false; // test todo delete this
 	ModelerView::draw();
 	// save camera
 	Mat4f cameraM = getModelViewMatrix();
@@ -1195,6 +1197,18 @@ void RobotModel::draw()
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, light_intensity);
 	glLightfv(GL_LIGHT1, GL_SPECULAR, light_intensity);
 
+	// --------------------------------------------------------------------------------------------------//
+	// test texture projection
+	if (VAL(PROJECTION) == 1)
+	{
+		textureProjection();
+		endDraw();
+		return;
+	}
+
+
+	// test end
+	// --------------------------------------------------------------------------------------------------//
 	if (VAL(FLOCKING))
 	{
 		// possibly do sth. here
@@ -1613,8 +1627,9 @@ int main()
 	controls[HEIGHT_FIELD] = ModelerControl("Height field", 0, 1, 1, 0);
 	controls[SNOW] = ModelerControl("Snow", 0, 1, 1, 0);
 	controls[FIRE] = ModelerControl("Fire", 0, 1, 1, 0);
-	controls[CLOTH] = ModelerControl("Cloth", 0, 1, 1, 1);
+	controls[CLOTH] = ModelerControl("Cloth and smoke", 0, 1, 1, 1);
 	controls[INTER_COLLISION] = ModelerControl("Inter-collision detection", 0, 1, 1, 0);
+	controls[PROJECTION] = ModelerControl("texture project", 0, 1, 1, 0);
 
 	ParticleSystem* ps = new ParticleSystem();
 	

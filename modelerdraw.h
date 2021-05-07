@@ -97,4 +97,10 @@ void initTexture(unsigned char* im, int w, int h, bool alpha_flag = false);
 
 void drawBillboard(Camera* eye);
 void drawBillboardFire(Camera* eye);
+
+void loadProjectTexture(unsigned char* texture, int w, int h);
+void setUpProjection(unsigned char* texture, int w, int h);
+void loadTextureProjection();
+void drawTextureProjection();
+void textureProjection();
 #endif

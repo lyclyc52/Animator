@@ -632,3 +632,182 @@ void drawBillboardFire(Camera* eye)
 
     glEnd();
 }
+
+void loadProjectTexture(unsigned char* texture, int w, int h)
+{
+    GLfloat borderColor[4] =
+    { 1.0, 1.0, 1.0, 1.0 };
+
+    bool linearFilter = true;
+    if (linearFilter) {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    else {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, w, h,
+        GL_RGB, GL_UNSIGNED_BYTE, texture);
+}
+
+void setUpProjection(unsigned char* texture, int w, int h)
+{
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_GEN_S);
+    glEnable(GL_TEXTURE_GEN_T);
+    glEnable(GL_TEXTURE_GEN_R);
+    glEnable(GL_TEXTURE_GEN_Q);
+
+    GLfloat eyePlaneS[] =
+    { 1.0, 0.0, 0.0, 0.0 };
+    GLfloat eyePlaneT[] =
+    { 0.0, 1.0, 0.0, 0.0 };
+    GLfloat eyePlaneR[] =
+    { 0.0, 0.0, 1.0, 0.0 };
+    GLfloat eyePlaneQ[] =
+    { 0.0, 0.0, 0.0, 1.0 };
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+    loadProjectTexture(texture, w, h); // check this
+
+    glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    glTexGenfv(GL_S, GL_EYE_PLANE, eyePlaneS);
+
+    glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    glTexGenfv(GL_T, GL_EYE_PLANE, eyePlaneT);
+
+    glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    glTexGenfv(GL_R, GL_EYE_PLANE, eyePlaneR);
+
+    glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+    glTexGenfv(GL_Q, GL_EYE_PLANE, eyePlaneQ);
+}
+
+
+
+//void loadTextureProjection(GLfloat m[16])
+void loadTextureProjection()
+{
+    float xmin = -0.035, xmax = 0.035;
+    float ymin = -0.035, ymax = 0.035;
+    float nnear = 0.1;
+    float ffar = 1.9;
+    float distance = -1.0;
+    // inprove this ?
+
+
+    GLfloat mInverse[4][4];
+
+    /* Should use true inverse, but since m consists only of rotations, we can
+       just use the transpose. */
+    //matrixTranspose((GLfloat*)mInverse, m);
+
+    glMatrixMode(GL_TEXTURE);
+    glLoadIdentity();
+    glTranslatef(0.5, 0.5, 0.0);
+    glScalef(0.5, 0.5, 1.0);
+    glFrustum(xmin, xmax, ymin, ymax, nnear, ffar);
+    glTranslatef(0.0, 0.0, distance);
+    
+    // mult model view matrix
+    //glMultMatrixf((GLfloat*)mInverse);
+    gluLookAt(0, 0, -1,
+        0, 0, 0,
+        0, 1, 0);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void drawTextureProjection()
+{
+    float xmin = -0.035, xmax = 0.035;
+    float ymin = -0.035, ymax = 0.035;
+    float nnear = 0.1;
+    float ffar = 1.9;
+    float distance = -1.0;
+
+    float t = ffar / nnear;
+    GLfloat n[4][3];
+    GLfloat f[4][3];
+
+    n[0][0] = xmin;
+    n[0][1] = ymin;
+    n[0][2] = -(nnear + distance);
+
+    n[1][0] = xmax;
+    n[1][1] = ymin;
+    n[1][2] = -(nnear + distance);
+
+    n[2][0] = xmax;
+    n[2][1] = ymax;
+    n[2][2] = -(nnear + distance);
+
+    n[3][0] = xmin;
+    n[3][1] = ymax;
+    n[3][2] = -(nnear + distance);
+
+    f[0][0] = xmin * t;
+    f[0][1] = ymin * t;
+    f[0][2] = -(ffar + distance);
+
+    f[1][0] = xmax * t;
+    f[1][1] = ymin * t;
+    f[1][2] = -(ffar + distance);
+
+    f[2][0] = xmax * t;
+    f[2][1] = ymax * t;
+    f[2][2] = -(ffar + distance);
+
+    f[3][0] = xmin * t;
+    f[3][1] = ymax * t;
+    f[3][2] = -(ffar + distance);
+
+    glColor3f(1.0, 1.0, 0.0);
+    glBegin(GL_LINE_LOOP);
+    glVertex3fv(n[0]);
+    glVertex3fv(n[1]);
+    glVertex3fv(n[2]);
+    glVertex3fv(n[3]);
+    glVertex3fv(f[3]);
+    glVertex3fv(f[2]);
+    glVertex3fv(f[1]);
+    glVertex3fv(f[0]);
+    glVertex3fv(n[0]);
+    glVertex3fv(n[1]);
+    glVertex3fv(f[1]);
+    glVertex3fv(f[0]);
+    glVertex3fv(f[3]);
+    glVertex3fv(f[2]);
+    glVertex3fv(n[2]);
+    glVertex3fv(n[3]);
+    glEnd();
+}
+
+void textureProjection()
+{
+    setDiffuseColor(1, 1, 1);
+    int w, h;
+    unsigned char* texture = readBMP("./samples/snow512.bmp", w, h);
+    // load a texture
+
+    setUpProjection(texture, w, h);
+    loadTextureProjection();
+
+    drawTextureProjection();
+
+
+    glPushMatrix();
+    glTranslated(-3, 0, -8);
+    glRotated(30, 1, 0, 0);
+    drawBox(6, 6, 0.1);
+    glPopMatrix();
+
+    glPushMatrix();
+    glTranslated(-3, -6, -5);
+    glRotated(-30, 1, 0, 0);
+    drawBox(6, 6, 0.1);
+    glPopMatrix();
+}
