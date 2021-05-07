@@ -29,7 +29,11 @@ You can drag those new points to control the curve.(Also support "Warp")
 
 
 
-W spline control options			yes/no
+W spline control options			yes
+(First two of them)
+tension control
+standard subdivision
+
 W TGA						yes/no
 W mirror					yes/no
 W billboard					yes
@@ -46,18 +50,19 @@ B spring-mass system				yes
 +B spring based cloth				yes
 B collision detection AND handling		yes
 	turn on the collision detection on the left slider pls, the effect can be seen from the smoke of the model
-B general subdvision curves			yes/no
+B general subdvision curves			yes
++B (might deserve)
 B height fields					yes
 B metaballs					yes/no
 BW lens flare					yes/no
 BW your great UI idea				yes/no
 2B flocks					yes
 	turn on with slider
-2B C2 interpolating curve			yes/no
-2B edit CR curves				yes/no
+2B C2 interpolating curve			yes
+2B edit CR curves				yes
 2B UI to select model parts by clicking		yes/no
-2B quaternions					yes/no
-2B bspline surface				yes/no
+2B quaternions					yes
+2B bspline surface				yes
 3B projected textures				yes
 	turn on the projection texture slider on the left
 3B motion warping				yes/no
