@@ -163,10 +163,9 @@ void Camera::calculateViewingTransformParameters()
 		Vec3f u = mPosition;
 		u.normalize();
 
-		//I don't know what's happening. The two perpendicular vectors converge to the smae after rotation
+		
 		//Vec3f lastP = mPosition;
-				cout <<"Before Twist: "<< mUpVectors[index] << mUpVectors[(index + 1) % 2] << endl;
-				cout << mUpVectors[0] * mUpVectors[1] << endl;
+
 		mUpVectors[index] = (cosAlpha * cosAlpha - sinAlpha * sinAlpha) * mUpVectors[index] +
 			2 * cosAlpha * sinAlpha * (u ^ mUpVectors[index]) +
 			(u * mUpVectors[index]) * 2 * sinAlpha * sinAlpha * u;
@@ -192,7 +191,6 @@ void Camera::calculateViewingTransformParameters()
 	{
 
 		index = (index + 1) % 2;
-		cout <<"Change: " <<mUpVectors[0]<< mUpVectors[1] << endl;
 		mUpVector = mUpVectors[index];
 	}
 	Vec3f newF = (mPosition - mLookAt);
@@ -207,8 +205,6 @@ void Camera::calculateViewingTransformParameters()
 
 
 
-	cout << mUpVector << endl;
-	cout << mPosition << endl<<endl;
 
 	//mPosition = Vec3f(0, 0, 0);
 
