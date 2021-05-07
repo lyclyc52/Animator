@@ -20,6 +20,7 @@ typedef enum { CTRL_MODE, CURVE_MODE } cam_mode_t;
 class ModelerView : public Fl_Gl_Window
 {
 public:
+	bool isSurface;
     ModelerView(int x, int y, int w, int h, char *label=0);
 
 	virtual ~ModelerView();

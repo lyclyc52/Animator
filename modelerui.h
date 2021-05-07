@@ -172,6 +172,11 @@ private:
 	inline void cb_has_inner_control_i(Fl_Light_Button*, void*);
 	static void cb_has_inner_control(Fl_Light_Button*, void*);
 
+	inline void cb_show_control_window_i(Fl_Button*, void*);
+	static void cb_show_control_windowl(Fl_Button*, void*);
+
+
+
 };
 
 #endif

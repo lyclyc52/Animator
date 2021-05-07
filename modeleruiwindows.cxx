@@ -144,6 +144,19 @@ ModelerUIWindows::ModelerUIWindows() {
 
         o->end();
       }
+      { Fl_Group* o = m_pgrpPlaneGroup = new Fl_Group(160, 55, 425, 435, "Plane");
+          o->labelsize(12);
+          {
+              Fl_Button* o = m_control_surface_button= new Fl_Button(205,130, 100, 30,"Control Surface");
+              o->labelsize(12);
+              o->user_data((void*)(this));
+          }
+          { 
+            ModelerView* o = m_pwndPlaneView = new ModelerView(205, 180, 340, 295, "PlaneView");
+            Fl_Group::current()->resizable(o);
+            m_pwndPlaneView->isSurface = true;
+          }
+      }
       o->end();
     }
     { Fl_Group* o = new Fl_Group(5, 510, 580, 190, "Animation Controls");
@@ -336,5 +349,6 @@ ModelerUIWindows::ModelerUIWindows() {
   m_inner_control_check_button->user_data((void*)(this));
 
   m_firstBonusWindow->end();
+
   
 }

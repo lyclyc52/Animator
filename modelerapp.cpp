@@ -142,6 +142,17 @@ void ModelerApplication::SetParticleSystem(ParticleSystem *s)
 	ps = s;
 }
 
+Surface* ModelerApplication::GetSurface()
+{
+	return s;
+}
+void ModelerApplication::SetSurface(Surface* s)
+{
+	this->s = s;
+	//m_ui->setControlWindows(s);
+}
+
+
 float ModelerApplication::GetTime()
 {
 	return m_ui->currTime();

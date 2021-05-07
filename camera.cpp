@@ -134,6 +134,8 @@ void Camera::calculateViewingTransformParameters()
 	//mUpVector = Vec3f(0,0,1);
 	if (theta > 0.0001)
 	{
+		if (theta > 30)
+			theta = 30;
 		float cosTheta = cos(theta / 2);
 		float sinTheta = sin(theta / 2);
 		Vec3f u = mAzimuth * U - mElevation * L;
@@ -158,6 +160,8 @@ void Camera::calculateViewingTransformParameters()
 
 	if (mTwist > 0.1 || mTwist < -0.1)
 	{
+		if (mTwist > 30)
+			mTwist = 30;
 		float cosAlpha = cos(mTwist / 2);
 		float sinAlpha = sin(mTwist / 2);
 		Vec3f u = mPosition;
@@ -187,7 +191,7 @@ void Camera::calculateViewingTransformParameters()
 
 	Vec3f p = mPosition;
 	p.normalize();
-	if ((p ^ mUpVector).length() < 0.01)
+	if ((p ^ mUpVector).length() < 0.3)
 	{
 
 		index = (index + 1) % 2;

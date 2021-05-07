@@ -23,7 +23,7 @@
 #include <FL/Fl_Slider.H>
 #include <FL/Fl_Output.H>
 #include "modelerview.h"
-
+#include "Surface.h"
 class ModelerUIWindows {
 public:
   ModelerUIWindows();
@@ -49,6 +49,7 @@ public:
   Fl_Scroll *m_pscrlScroll;
   Fl_Pack *m_ppckPack;
   Fl_Group *m_pgrpCurveGroup;
+  Fl_Group* m_pgrpPlaneGroup;
   RulerWindow *m_pwndHRuler;
   RulerWindow *m_pwndVRuler;
   GraphWidget *m_pwndGraphWidget;
@@ -57,6 +58,7 @@ public:
   Fl_Light_Button *m_pbtWrap;
   Fl_Button *m_pbtZoomAll;
 
+  ModelerView* m_pwndPlaneView;
 
   Fl_Button *m_pbtStepBack;
   Fl_Button *m_pbtPlay;
@@ -89,5 +91,13 @@ public:
   Fl_Light_Button* m_average_mask_check_button;
 
   Fl_Light_Button* m_inner_control_check_button;
+
+
+  Fl_Button* m_control_surface_button;
+  Fl_Window* m_controlSurfaceWindow;
+  std::vector<Fl_Slider*> m_controlSliders;
+
+
+  //void setControlWindows(Surface* s);
 };
 #endif

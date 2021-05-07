@@ -5,6 +5,7 @@
 #ifndef MODELERAPP_H
 #define MODELERAPP_H
 
+#include "Surface.h"
 #include "modelerview.h"
 
 struct ModelerControl
@@ -56,6 +57,9 @@ public:
 	ParticleSystem *GetParticleSystem();
 	void SetParticleSystem(ParticleSystem *s);
 
+	Surface* GetSurface();
+	void SetSurface(Surface* s);
+
 	// Return the current time
 	float GetTime();
 
@@ -87,6 +91,10 @@ private:
 
 	// Particle System variables
 	ParticleSystem *ps;
+
+
+	// Surface Variable
+	Surface *s;
 };
 
 #endif

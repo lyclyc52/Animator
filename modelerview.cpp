@@ -22,6 +22,7 @@ ModelerView::ModelerView(int x, int y, int w, int h, char *label)
 	m_ctrl_camera = new Camera();
 	m_curve_camera = new Camera();
 	camera(CURVE_MODE);
+	isSurface = false;
 }
 
 ModelerView::~ModelerView()
@@ -119,11 +120,24 @@ void ModelerView::draw()
     glLightfv( GL_LIGHT1, GL_DIFFUSE, lightDiffuse1 );
 
 	// If particle system exists, draw it
-	ParticleSystem *ps = ModelerApplication::Instance()->GetParticleSystem();
-	if (ps != NULL) {
-		ps->computeForcesAndUpdateParticles(t);
-		ps->drawParticles(t);
+	if(!isSurface)
+	{ 
+		ParticleSystem* ps = ModelerApplication::Instance()->GetParticleSystem();
+		if (ps != NULL) {
+			ps->computeForcesAndUpdateParticles(t);
+			ps->drawParticles(t);
+		}
 	}
+	else
+	{
+		Surface* s = ModelerApplication::Instance()->GetSurface();
+		if (s != NULL) {
+			s->evaluateSurface();
+			s->drawSurface();
+		}
+
+	}
+
 }
 
 
@@ -181,4 +195,6 @@ void ModelerView::saveBMP(const char* szFileName)
 	
 	delete [] imageBuffer;
 }
+
+
 

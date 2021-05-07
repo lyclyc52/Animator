@@ -123,6 +123,9 @@
     <ClCompile Include="LaneRiesenfeldcurveevaluator.cpp">
       <Filter>Source Files\Curves</Filter>
     </ClCompile>
+    <ClCompile Include="Surface.cpp">
+      <Filter>Source Files\Curves</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="curve.h">
@@ -198,6 +201,12 @@
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
     <ClInclude Include="LaneRiesenfeldcurveevaluator.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="Surface.h">
+      <Filter>Header Files\Curves.</Filter>
+    </ClInclude>
+    <ClInclude Include="Point_3D.h">
       <Filter>Header Files\Curves.</Filter>
     </ClInclude>
   </ItemGroup>

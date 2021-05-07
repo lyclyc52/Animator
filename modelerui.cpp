@@ -1189,7 +1189,15 @@ void ModelerUI::cb_has_inner_control(Fl_Light_Button* o, void* v)
 	((ModelerUI*)(o->user_data()))->cb_has_inner_control_i(o, v);
 }
 
+inline void ModelerUI::cb_show_control_window_i(Fl_Button* o, void* v)
+{
+	m_controlSurfaceWindow->show();
+}
+void ModelerUI::cb_show_control_windowl(Fl_Button* o, void* v)
+{
+	((ModelerUI*)(o->user_data()))->cb_show_control_window_i(o, v);
 
+}
 
 inline void ModelerUI::cb_apply_i(Fl_Button*, void*)
 {
@@ -1199,3 +1207,5 @@ void ModelerUI::cb_apply(Fl_Button* o, void* v)
 {
 	((ModelerUI*)(o->user_data()))->cb_apply_i(o, v);
 }
+
+

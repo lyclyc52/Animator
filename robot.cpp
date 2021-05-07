@@ -1620,6 +1620,9 @@ int main()
 	
 	ModelerApplication::Instance()->SetParticleSystem(ps);
 
+	Surface* s = new Surface();
+	ModelerApplication::Instance()->SetSurface(s);
+	
 	ModelerApplication::Instance()->Init(&createSampleModel, controls, NUMCONTROLS);
 
 	return ModelerApplication::Instance()->Run();
