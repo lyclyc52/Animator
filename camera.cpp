@@ -15,35 +15,36 @@
 #define M_PI 3.141592653589793238462643383279502f
 #endif 
 
-const float kMouseRotationSensitivity		= 1.0f/90.0f;
-const float kMouseTranslationXSensitivity	= 0.03f;
-const float kMouseTranslationYSensitivity	= 0.03f;
-const float kMouseZoomSensitivity			= 0.08f;
+const float kMouseRotationSensitivity = 1.0f / 135.0f;
+const float kMouseTranslationXSensitivity = 0.03f;
+const float kMouseTranslationYSensitivity = 0.03f;
+const float kMouseZoomSensitivity = 0.08f;
+const float kMouseTwistSensitivity = 3.0f / 90.0f;
 
-void MakeDiagonal(Mat4f &m, float k)
+void MakeDiagonal(Mat4f& m, float k)
 {
-	register int i,j;
+	register int i, j;
 
-	for (i=0; i<4; i++)
-		for (j=0; j<4; j++)
-			m[i][j] = (i==j) ? k : 0.0f;
+	for (i = 0; i < 4; i++)
+		for (j = 0; j < 4; j++)
+			m[i][j] = (i == j) ? k : 0.0f;
 }
 
-void MakeHScale(Mat4f &m, const Vec3f &s)	
+void MakeHScale(Mat4f& m, const Vec3f& s)
 {
-	MakeDiagonal(m,1.0f);
+	MakeDiagonal(m, 1.0f);
 	m[0][0] = s[0]; m[1][1] = s[1];	m[2][2] = s[2];
 }
 
-void MakeHTrans(Mat4f &m, const Vec3f &s)
+void MakeHTrans(Mat4f& m, const Vec3f& s)
 {
-	MakeDiagonal(m,1.0f);
+	MakeDiagonal(m, 1.0f);
 	m[0][3] = s[0]; m[1][3] = s[1]; m[2][3] = s[2];
 }
 
-void MakeHRotX(Mat4f &m, float theta)
+void MakeHRotX(Mat4f& m, float theta)
 {
-	MakeDiagonal(m,1.0f);
+	MakeDiagonal(m, 1.0f);
 	float cosTheta = cos(theta);
 	float sinTheta = sin(theta);
 	m[1][1] = cosTheta;
@@ -52,9 +53,9 @@ void MakeHRotX(Mat4f &m, float theta)
 	m[2][2] = cosTheta;
 }
 
-void MakeHRotY(Mat4f &m, float theta)
+void MakeHRotY(Mat4f& m, float theta)
 {
-	MakeDiagonal(m,1.0f);
+	MakeDiagonal(m, 1.0f);
 	float cosTheta = cos(theta);
 	float sinTheta = sin(theta);
 	m[0][0] = cosTheta;
@@ -63,9 +64,9 @@ void MakeHRotY(Mat4f &m, float theta)
 	m[2][2] = cosTheta;
 }
 
-void MakeHRotZ(Mat4f &m, float theta)
+void MakeHRotZ(Mat4f& m, float theta)
 {
-	MakeDiagonal(m,1.0f);
+	MakeDiagonal(m, 1.0f);
 	float cosTheta = cos(theta);
 	float sinTheta = sin(theta);
 	m[0][0] = cosTheta;
@@ -75,14 +76,14 @@ void MakeHRotZ(Mat4f &m, float theta)
 }
 
 
-/** 
+/**
  * Possibly useful fxn that is not currently called.
- * Computes the rigid body transformation to the 
+ * Computes the rigid body transformation to the
  * camera reference frame specified by the eye, at and
  * up vectors passed in as arguments.
  */
-void MakeCamTrans(Mat4f &m, Vec3f &eye, 
-					Vec3f &at, Vec3f &up)
+void MakeCamTrans(Mat4f& m, Vec3f& eye,
+	Vec3f& at, Vec3f& up)
 {
 
 	// compute normalized vectors
@@ -99,56 +100,150 @@ void MakeCamTrans(Mat4f &m, Vec3f &eye,
 
 	// construct rotation matrix
 	m = Mat4f(i[0], i[1], i[2], 0,
-			  j[0], j[1], j[2], 0,
-			  -k[0], -k[1], -k[2], 0,
-			  0,0,0,1);
+		j[0], j[1], j[2], 0,
+		-k[0], -k[1], -k[2], 0,
+		0, 0, 0, 1);
 
 }
 
 
-void Camera::calculateViewingTransformParameters() 
+void Camera::calculateViewingTransformParameters()
 {
 	// compute new transformation based on
 	// user interaction
-	Mat4f dollyXform;
-	Mat4f azimXform;
-	Mat4f elevXform;
-	Mat4f twistXform;
+	//Mat4f dollyXform;
+	//Mat4f azimXform;
+	//Mat4f elevXform;
+	//Mat4f twistXform;
+
+
 	Mat4f originXform;
 
-	Vec3f upVector;
+	//Vec3f upVector;
 
-	MakeHTrans(dollyXform, Vec3f(0,0,mDolly));
-	MakeHRotY(azimXform, mAzimuth);
-	MakeHRotX(elevXform, mElevation);
-	MakeDiagonal(twistXform, 1.0f);
-	MakeHTrans(originXform, mLookAt);
+	//MakeHTrans(dollyXform, Vec3f(0, 0, mDolly));
+	//MakeHRotY(azimXform, mAzimuth);
+	//MakeHRotX(elevXform, mElevation);
+	//MakeDiagonal(twistXform, 1.0f);
+	MakeHTrans(originXform, mLookAt- lastLookAt);
+
 	
-	mPosition = Vec3f(0,0,0);
+	//mUpVector = Vec3f(0, 1,0.001);
+	float theta = sqrt(mAzimuth * mAzimuth + mElevation * mElevation);
+	Vec3f lastP = mPosition;
+	//mUpVector = Vec3f(0,0,1);
+	if (theta > 0.0001)
+	{
+		float cosTheta = cos(theta / 2);
+		float sinTheta = sin(theta / 2);
+		Vec3f u = mAzimuth * U - mElevation * L;
+		u.normalize();
+		//cout << u << endl;
+		//cout << mPosition << endl;
+		//cout << mUpVector << endl<<endl;
 
-	mPosition = originXform * (azimXform * (elevXform * (dollyXform * mPosition)));
+		mPosition = (cosTheta * cosTheta - sinTheta * sinTheta) * mPosition +
+			2 * cosTheta * sinTheta * (u ^ mPosition) +
+			(u * mPosition) * 2 * sinTheta * sinTheta * u;
+	}
 
-	if ( fmod(double(mElevation), 2.0*M_PI) < -M_PI/2 || fmod(double(mElevation), 2.0*M_PI) > M_PI/2 )
-		mUpVector= Vec3f(0,-1,0);
-	else
-		mUpVector= Vec3f(0,1,0);
 
-	mDirtyTransform = false;
+
+
+	mPosition = (mDolly / mLastDolly) * mPosition;
+	mLastDolly = mDolly;
+	mPosition = originXform * mPosition;
+	lastLookAt = mLookAt;
+
+
+	if (mTwist > 0.1 || mTwist < -0.1)
+	{
+		float cosAlpha = cos(mTwist / 2);
+		float sinAlpha = sin(mTwist / 2);
+		Vec3f u = mPosition;
+		u.normalize();
+
+		
+		//Vec3f lastP = mPosition;
+
+		mUpVectors[index] = (cosAlpha * cosAlpha - sinAlpha * sinAlpha) * mUpVectors[index] +
+			2 * cosAlpha * sinAlpha * (u ^ mUpVectors[index]) +
+			(u * mUpVectors[index]) * 2 * sinAlpha * sinAlpha * u;
+		mUpVectors[(index + 1) % 2] = (cosAlpha * cosAlpha - sinAlpha * sinAlpha) * mUpVectors[(index + 1) % 2] +
+			2 * cosAlpha * sinAlpha * (u ^ mUpVectors[(index + 1) % 2]) +
+			(u * mUpVectors[(index + 1) % 2]) * 2 * sinAlpha * sinAlpha * u;
+			
+		mUpVectors[index].normalize();
+		mUpVectors[(index + 1) % 2].normalize();
+		mUpVector= mUpVectors[index];
+		//cout << mUpVector << endl;
+
+		//cout <<"Twist: "<< mUpVectors[0] << mUpVectors[1] << endl;
+		//cout << mUpVectors[0] * mUpVectors[1] << endl;
+		//reset();
+
+	}
+
+
+	Vec3f p = mPosition;
+	p.normalize();
+	if ((p ^ mUpVector).length() < 0.01)
+	{
+
+		index = (index + 1) % 2;
+		mUpVector = mUpVectors[index];
+	}
+	Vec3f newF = (mPosition - mLookAt);
+		newF.normalize();
+	if (L * (mUpVector ^ newF)< -0.00001)
+	{
+		mUpVector = -1*mUpVector;
+		mUpVectors[index] = mUpVector;
+	}
+
+
+
+
+
+
+	//mPosition = Vec3f(0, 0, 0);
+
+	//mPosition = originXform * (azimXform * (elevXform * (dollyXform * mPosition)));
+
+	//if (fmod(double(mElevation), 2.0 * M_PI) < -M_PI / 2 || fmod(double(mElevation), 2.0 * M_PI) > M_PI / 2)
+	//	mUpVector = Vec3f(0, -1*cos(mTwist), sin(mTwist));
+	//else
+	//	mUpVector = Vec3f(0, 1*cos(mTwist), sin(mTwist));
+
+	reset();
 }
 
-Camera::Camera() 
+Camera::Camera()
 {
 	mAzimuth = mTwist = 0.0f;
 	mElevation = 0.7f;
-	mDolly = -20.0f;
+	mDolly = mLastDolly= -20.0f;
 
-	mLookAt = Vec3f( 0, 0, 0 );
+	mLookAt = lastLookAt= Vec3f(0, 0, 0);
+
+	mUpVector = Vec3f(0, 1,0);
+	//mPosition= Vec3f(0, 20, 0);
+	mPosition = Vec3f(0, 0, mDolly);
+	next_up_index = 1;
 
 	mCurrentMouseAction = kActionNone;
 
 	m_bSnapped = false;
-	for (int i=AZIMUTH; i<NUM_KEY_CURVES; i++)
+	for (int i = AZIMUTH; i < NUM_KEY_CURVES; i++)
 		mKeyframes[i] = NULL;
+	Vec3f F = mPosition - mLookAt;
+	F.normalize();
+	U = Vec3f(mUpVector[0], mUpVector[1], mUpVector[2]);
+	U.normalize();
+	L = U ^ F;
+	L.normalize();
+	U = F ^ L;
+	U.normalize();
 
 	calculateViewingTransformParameters();
 
@@ -173,7 +268,7 @@ void Camera::createCurves(float t, float maxX)
 
 void Camera::deleteCurves()
 {
-	for (int i=AZIMUTH; i<NUM_KEY_CURVES; i++)  {
+	for (int i = AZIMUTH; i < NUM_KEY_CURVES; i++) {
 		if (mKeyframes[i] != NULL) {
 			delete mKeyframes[i];
 			mKeyframes[i] = NULL;
@@ -181,82 +276,87 @@ void Camera::deleteCurves()
 	}
 }
 
-void Camera::clickMouse( MouseAction_t action, int x, int y )
+void Camera::clickMouse(MouseAction_t action, int x, int y)
 {
 	mCurrentMouseAction = action;
 	mLastMousePosition[0] = x;
 	mLastMousePosition[1] = y;
+
 }
 
-void Camera::dragMouse( int x, int y )
+void Camera::dragMouse(int x, int y)
 {
-	Vec3f mouseDelta   = Vec3f(x,y,0.0f) - mLastMousePosition;
-	mLastMousePosition = Vec3f(x,y,0.0f);
+	Vec3f mouseDelta = Vec3f(x, y, 0.0f) - mLastMousePosition;
+	mLastMousePosition = Vec3f(x, y, 0.0f);
 
-	switch(mCurrentMouseAction)
+	switch (mCurrentMouseAction)
 	{
 	case kActionTranslate:
-		{
-			calculateViewingTransformParameters();
+	{
+		calculateViewingTransformParameters();
 
-			double xTrack =  -mouseDelta[0] * kMouseTranslationXSensitivity;
-			double yTrack =  mouseDelta[1] * kMouseTranslationYSensitivity;
+		double xTrack = -mouseDelta[0] * kMouseTranslationXSensitivity;
+		double yTrack = mouseDelta[1] * kMouseTranslationYSensitivity;
 
-			Vec3f transXAxis = mUpVector ^ (mPosition - mLookAt);
-			transXAxis /= sqrt((transXAxis*transXAxis));
-			Vec3f transYAxis = (mPosition - mLookAt) ^ transXAxis;
-			transYAxis /= sqrt((transYAxis*transYAxis));
+		Vec3f transXAxis = mUpVector ^ (mPosition - mLookAt);
+		transXAxis /= sqrt((transXAxis * transXAxis));
+		Vec3f transYAxis = (mPosition - mLookAt) ^ transXAxis;
+		transYAxis /= sqrt((transYAxis * transYAxis));
 
-			setLookAt(getLookAt() + transXAxis*xTrack + transYAxis*yTrack);
-			
-			break;
-		}
+		setLookAt(getLookAt() + transXAxis * xTrack + transYAxis * yTrack);
+
+		break;
+	}
 	case kActionRotate:
-		{
-			float dAzimuth		=   -mouseDelta[0] * kMouseRotationSensitivity;
-			float dElevation	=   mouseDelta[1] * kMouseRotationSensitivity;
-			
-			setAzimuth(getAzimuth() + dAzimuth);
-			setElevation(getElevation() + dElevation);
+	{
+		float dAzimuth = -mouseDelta[0] * kMouseRotationSensitivity;
+		float dElevation = mouseDelta[1] * kMouseRotationSensitivity;
 
-			if (getAzimuth() > M_PI) 
-				mAzimuth -= 2.0*M_PI;
-			if (getElevation() > M_PI) 
-				mElevation -= 2.0*M_PI;
+		setAzimuth(getAzimuth() + dAzimuth);
+		setElevation(getElevation() + dElevation);
 
-			fprintf(stderr, "az %f, elev %f\n", mAzimuth, mElevation);
+		if (getAzimuth() > M_PI)
+			mAzimuth -= 2.0 * M_PI;
+		if (getElevation() > M_PI)
+			mElevation -= 2.0 * M_PI;
 
-			break;
-		}
+		//fprintf(stderr, "az %f, elev %f\n", mAzimuth, mElevation);
+
+		break;
+	}
 	case kActionZoom:
-		{
-			float dDolly = -mouseDelta[1] * kMouseZoomSensitivity;
-			setDolly(getDolly() + dDolly);
-			break;
-		}
-	case kActionTwist:
-		// Not implemented
+	{
+		float dDolly = -mouseDelta[1] * kMouseZoomSensitivity;
+		setDolly(getDolly() + dDolly);
+		float twist = mouseDelta[0] * kMouseTwistSensitivity;
+		setTwist(getTwist() + twist);
+		if (getTwist() > M_PI)
+			mTwist -= 2.0 * M_PI;
+		break;
+	}
+	//case kActionTwist:
+	//	// Not implemented
 	default:
 		break;
 	}
 
 }
 
-void Camera::releaseMouse( int x, int y )
+void Camera::releaseMouse(int x, int y)
 {
 	mCurrentMouseAction = kActionNone;
 }
 
 
 void Camera::applyViewingTransform() {
-	if( mDirtyTransform )
+	if (mDirtyTransform)
 		calculateViewingTransformParameters();
 
 	// Place the camera at mPosition, aim the camera at
 	// mLookAt, and twist the camera such that mUpVector is up
-	gluLookAt(	mPosition[0], mPosition[1], mPosition[2],
-				mLookAt[0],   mLookAt[1],   mLookAt[2],
-				mUpVector[0], mUpVector[1], mUpVector[2]);
+	gluLookAt(mPosition[0], mPosition[1], mPosition[2],
+		mLookAt[0], mLookAt[1], mLookAt[2],
+		mUpVector[0], mUpVector[1], mUpVector[2]);
 }
 
 
@@ -264,7 +364,7 @@ void Camera::applyViewingTransform() {
 void Camera::update(float t)
 {
 	// do nothing if no keyframes
-	if (mNumKeyframes == 0) 
+	if (mNumKeyframes == 0)
 		return;
 
 	// otherwise, update based on curves
@@ -328,7 +428,7 @@ void Camera::removeKeyframe(float t)
 	toRemove[LOOKAT_Y] = Point(t, mLookAt[1]);
 	toRemove[LOOKAT_Z] = Point(t, mLookAt[2]);
 
-	for (int i=AZIMUTH; i<NUM_KEY_CURVES; i++) {
+	for (int i = AZIMUTH; i < NUM_KEY_CURVES; i++) {
 		int j = mKeyframes[i]->getClosestControlPoint(toRemove[i], tmp);
 		mKeyframes[i]->removeControlPoint2(j);
 	}
@@ -346,7 +446,7 @@ bool Camera::saveKeyframes(const char* szFileName) const
 		ofsFile << mNumKeyframes << std::endl;
 		ofsFile << NUM_KEY_CURVES << std::endl;
 
-		if (mKeyframes[0]) 
+		if (mKeyframes[0])
 			for (int i = 0; i < NUM_KEY_CURVES; ++i) {
 				mKeyframes[i]->toStream(ofsFile);
 			}
@@ -401,3 +501,29 @@ float Camera::keyframeTime(int keyframe) const
 }
 
 #pragma warning(pop)
+
+
+
+
+
+//float theta = sqrt(mAzimuth * mAzimuth + mElevation * mElevation);
+//float cosTheta = cos(theta / 2);
+//float sinTheta = sin(theta / 2);
+//
+//Vec3f F = mPosition - mLookAt;
+//F.normalize();
+//Vec3f U(mUpVector[0], mUpVector[1], mUpVector[2]);
+//U.normalize();
+//Vec3f L = U ^ F;
+//L.normalize();
+//U = F ^ L;
+//U.normalize();
+//
+//Vec3f u = mAzimuth * U - mElevation * L;
+//
+//u.normalize();
+//cout << u << endl;
+//Vec3f lastP = mPosition;
+//mPosition = (cosTheta * cosTheta - sinTheta * sinTheta) * mPosition +
+//2 * cosTheta * sinTheta * (u ^ mPosition) +
+//(u * mPosition) * 2 * sinTheta * sinTheta * u;
