@@ -85,10 +85,15 @@ public:
 	bool cloth{ true };
 	bool interCollision{ false };
 	Camera* camera;
+	// collision
+	Vec3f collisionPos;
+	bool simulateCollision{ true };
+	float collisionR;
 protected:
 	class Particle
 	{
 	public:
+		Particle() {};
 		Particle(float m, Vec3f v, Vec3f a, Vec3f F, Vec3f p)
 			: m(m), v(v), a(a), F(F), p(p) {}
 		float m;
@@ -143,6 +148,13 @@ protected:
 	int num_fireworks = 500;
 	int num_snow = 300;
 	int num_fire = 10000;
+
+	// collision
+	vector<Particle> bullets;
+	int bulletNum = 10;
+	float bulletR = 0.4;
+	
+
 	/** Some baking-related state **/
 	float bake_fps;						// frame rate at which simulation was baked
 	float bake_start_time;				// time at which baking started 
